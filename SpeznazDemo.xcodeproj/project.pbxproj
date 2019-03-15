@@ -8,20 +8,28 @@
 
 /* Begin PBXBuildFile section */
 		B3DAD0A5223B496700F3F3FA /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3DAD0A4223B496700F3F3FA /* AppDelegate.swift */; };
-		B3DAD0A7223B496700F3F3FA /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3DAD0A6223B496700F3F3FA /* ViewController.swift */; };
 		B3DAD0AA223B496700F3F3FA /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B3DAD0A8223B496700F3F3FA /* Main.storyboard */; };
 		B3DAD0AC223B496800F3F3FA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B3DAD0AB223B496800F3F3FA /* Assets.xcassets */; };
 		B3DAD0AF223B496800F3F3FA /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B3DAD0AD223B496800F3F3FA /* LaunchScreen.storyboard */; };
+		B3DAD0BC223B4C8800F3F3FA /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3DAD0BB223B4C8800F3F3FA /* Colors.swift */; };
+		B3DAD0C2223B50C300F3F3FA /* Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3DAD0C1223B50C300F3F3FA /* Storage.swift */; };
+		B3DAD0C4223B5A7700F3F3FA /* SwitchColorModeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3DAD0C3223B5A7700F3F3FA /* SwitchColorModeCell.swift */; };
+		B3DAD0C6223B5A9600F3F3FA /* StatisticsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3DAD0C5223B5A9600F3F3FA /* StatisticsVC.swift */; };
+		B3DAD0C8223B6AF900F3F3FA /* NavigationVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3DAD0C7223B6AF900F3F3FA /* NavigationVC.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		B3DAD0A1223B496700F3F3FA /* SpeznazDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SpeznazDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B3DAD0A4223B496700F3F3FA /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		B3DAD0A6223B496700F3F3FA /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		B3DAD0A9223B496700F3F3FA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		B3DAD0AB223B496800F3F3FA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B3DAD0AE223B496800F3F3FA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		B3DAD0B0223B496800F3F3FA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B3DAD0BB223B4C8800F3F3FA /* Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
+		B3DAD0C1223B50C300F3F3FA /* Storage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Storage.swift; sourceTree = "<group>"; };
+		B3DAD0C3223B5A7700F3F3FA /* SwitchColorModeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchColorModeCell.swift; sourceTree = "<group>"; };
+		B3DAD0C5223B5A9600F3F3FA /* StatisticsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsVC.swift; sourceTree = "<group>"; };
+		B3DAD0C7223B6AF900F3F3FA /* NavigationVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationVC.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -54,14 +62,58 @@
 		B3DAD0A3223B496700F3F3FA /* SpeznazDemo */ = {
 			isa = PBXGroup;
 			children = (
-				B3DAD0A4223B496700F3F3FA /* AppDelegate.swift */,
-				B3DAD0A6223B496700F3F3FA /* ViewController.swift */,
-				B3DAD0A8223B496700F3F3FA /* Main.storyboard */,
-				B3DAD0AB223B496800F3F3FA /* Assets.xcassets */,
-				B3DAD0AD223B496800F3F3FA /* LaunchScreen.storyboard */,
-				B3DAD0B0223B496800F3F3FA /* Info.plist */,
+				B3DAD0BA223B4BF700F3F3FA /* Controller */,
+				B3DAD0B9223B4BEF00F3F3FA /* View */,
+				B3DAD0B8223B4BEA00F3F3FA /* Model */,
+				B3DAD0B7223B4BD300F3F3FA /* Storyboard */,
+				B3DAD0B6223B4BC100F3F3FA /* Assets */,
 			);
 			path = SpeznazDemo;
+			sourceTree = "<group>";
+		};
+		B3DAD0B6223B4BC100F3F3FA /* Assets */ = {
+			isa = PBXGroup;
+			children = (
+				B3DAD0B0223B496800F3F3FA /* Info.plist */,
+				B3DAD0AB223B496800F3F3FA /* Assets.xcassets */,
+			);
+			path = Assets;
+			sourceTree = "<group>";
+		};
+		B3DAD0B7223B4BD300F3F3FA /* Storyboard */ = {
+			isa = PBXGroup;
+			children = (
+				B3DAD0A8223B496700F3F3FA /* Main.storyboard */,
+				B3DAD0AD223B496800F3F3FA /* LaunchScreen.storyboard */,
+			);
+			path = Storyboard;
+			sourceTree = "<group>";
+		};
+		B3DAD0B8223B4BEA00F3F3FA /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				B3DAD0A4223B496700F3F3FA /* AppDelegate.swift */,
+				B3DAD0BB223B4C8800F3F3FA /* Colors.swift */,
+				B3DAD0C1223B50C300F3F3FA /* Storage.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		B3DAD0B9223B4BEF00F3F3FA /* View */ = {
+			isa = PBXGroup;
+			children = (
+				B3DAD0C3223B5A7700F3F3FA /* SwitchColorModeCell.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		B3DAD0BA223B4BF700F3F3FA /* Controller */ = {
+			isa = PBXGroup;
+			children = (
+				B3DAD0C5223B5A9600F3F3FA /* StatisticsVC.swift */,
+				B3DAD0C7223B6AF900F3F3FA /* NavigationVC.swift */,
+			);
+			path = Controller;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -135,7 +187,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B3DAD0A7223B496700F3F3FA /* ViewController.swift in Sources */,
+				B3DAD0C8223B6AF900F3F3FA /* NavigationVC.swift in Sources */,
+				B3DAD0C2223B50C300F3F3FA /* Storage.swift in Sources */,
+				B3DAD0C6223B5A9600F3F3FA /* StatisticsVC.swift in Sources */,
+				B3DAD0BC223B4C8800F3F3FA /* Colors.swift in Sources */,
+				B3DAD0C4223B5A7700F3F3FA /* SwitchColorModeCell.swift in Sources */,
 				B3DAD0A5223B496700F3F3FA /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -284,7 +340,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 29KKQYWZ97;
-				INFOPLIST_FILE = SpeznazDemo/Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/SpeznazDemo/Assets/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -302,7 +359,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 29KKQYWZ97;
-				INFOPLIST_FILE = SpeznazDemo/Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/SpeznazDemo/Assets/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
