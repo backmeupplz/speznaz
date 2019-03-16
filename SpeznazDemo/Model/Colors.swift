@@ -13,7 +13,7 @@ enum ColorMode: String {
     case day
 }
 
-class Colors: NSObject {
+class Colors {
     public static var mode: ColorMode {
         get {
             guard let storageColorMode = Storage.get(by: .colorMode) else {
@@ -69,11 +69,5 @@ class Colors: NSObject {
         }
         
         UIApplication.shared.windows[0].rootViewController?.setNeedsStatusBarAppearanceUpdate()
-    }
-}
-
-extension UIColor {
-    convenience init(red: Int, green: Int, blue: Int, alpha: CGFloat = 1.0) {
-        self.init(red: CGFloat(red) / 255.0, green: CGFloat(green) / 255.0, blue: CGFloat(blue) / 255.0, alpha: alpha)
     }
 }

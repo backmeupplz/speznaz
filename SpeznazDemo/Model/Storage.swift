@@ -12,7 +12,7 @@ enum StorageKey: String {
     case colorMode
 }
 
-class Storage: NSObject {
+class Storage {
     public static func get(by key: StorageKey) -> String? {
        return UserDefaults.standard.value(forKey: key.rawValue) as? String
     }
