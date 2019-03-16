@@ -10,7 +10,11 @@ import UIKit
 
 class SwitchColorModeCell: UITableViewCell {
     
+    // MARK: - Outlets -
+    
     @IBOutlet weak var switchColorButton: UIButton?
+    
+    // MARK: - Actions -
     
     @IBAction func switchColorMode(_ sender: UIButton) {
         Colors.mode = Colors.mode == .day ? .night : .day
@@ -18,11 +22,15 @@ class SwitchColorModeCell: UITableViewCell {
         updateTitle()
     }
     
+    // MARK: - View Life Cycle -
+    
     override func awakeFromNib() {
         super.awakeFromNib()
         
         updateTitle()
     }
+    
+    // MARK: - Private Functions -
     
     func updateTitle() {
         self.switchColorButton?.setTitle(Colors.mode == .day ?

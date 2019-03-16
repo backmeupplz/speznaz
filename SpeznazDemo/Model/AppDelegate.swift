@@ -18,8 +18,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Initialization
         Colors.update()
         
-        print(InputData.data.charts)
-        
         return true
     }
 }

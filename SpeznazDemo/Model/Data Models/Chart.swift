@@ -8,24 +8,9 @@
 
 import UIKit
 
-class Column: Decodable {
-    var name: String
-    var values: [Int]
-    
-    required init(from decoder: Decoder) throws {
-        var data = try decoder.unkeyedContainer()
-        name = try data.decode(String.self)
-        var tempValues = [Int]()
-        while !data.isAtEnd {
-            let value = try data.decode(Int.self)
-            tempValues.append(value)
-        }
-        values = tempValues
-    }
-}
-
 class Chart: Decodable {
-    var columns: [String: [Int]]
+    var columns: [String: Column]
+    var columnNames: [String]
     var types: [String: LineType]
     var names: [String: String]
     var colors: [String: UIColor]
@@ -47,10 +32,12 @@ class Chart: Decodable {
         colors = colorStringsMap.mapValues { colorString in UIColor(hex: colorString)}
         // Columns
         let jsonColumns = try values.decode([Column].self, forKey: CodingKeys.columns)
-        var mutableColumnsMap = [String: [Int]]()
+        var mutableColumnsMap = [String: Column]()
         for column in jsonColumns {
-            mutableColumnsMap[column.name] = column.values
+            mutableColumnsMap[column.name] = column
         }
         columns = mutableColumnsMap
+        // Column names
+        columnNames = columns.keys.filter { $0 != "x" }.sorted()
     }
 }

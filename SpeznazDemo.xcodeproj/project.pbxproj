@@ -10,6 +10,12 @@
 		B3C5ABAF223D758600303645 /* DecodingError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3C5ABAE223D758600303645 /* DecodingError.swift */; };
 		B3C5ABB1223D759A00303645 /* LineType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3C5ABB0223D759A00303645 /* LineType.swift */; };
 		B3C5ABB3223D75B900303645 /* ColumnValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3C5ABB2223D75B900303645 /* ColumnValue.swift */; };
+		B3C5ABB5223D831800303645 /* StatisticsDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3C5ABB4223D831800303645 /* StatisticsDataSource.swift */; };
+		B3C5ABB9223D870000303645 /* ColumnCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3C5ABB8223D870000303645 /* ColumnCell.swift */; };
+		B3C5ABBB223D8CB800303645 /* RoundedSquare.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3C5ABBA223D8CB800303645 /* RoundedSquare.swift */; };
+		B3C5ABBD223D9A2B00303645 /* ChartCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3C5ABBC223D9A2B00303645 /* ChartCell.swift */; };
+		B3C5ABC1223D9B1300303645 /* ChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3C5ABC0223D9B1300303645 /* ChartView.swift */; };
+		B3C5ABC3223DA1D500303645 /* Column.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3C5ABC2223DA1D500303645 /* Column.swift */; };
 		B3DAD0A5223B496700F3F3FA /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3DAD0A4223B496700F3F3FA /* AppDelegate.swift */; };
 		B3DAD0AA223B496700F3F3FA /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B3DAD0A8223B496700F3F3FA /* Main.storyboard */; };
 		B3DAD0AC223B496800F3F3FA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B3DAD0AB223B496800F3F3FA /* Assets.xcassets */; };
@@ -30,6 +36,12 @@
 		B3C5ABAE223D758600303645 /* DecodingError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecodingError.swift; sourceTree = "<group>"; };
 		B3C5ABB0223D759A00303645 /* LineType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineType.swift; sourceTree = "<group>"; };
 		B3C5ABB2223D75B900303645 /* ColumnValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColumnValue.swift; sourceTree = "<group>"; };
+		B3C5ABB4223D831800303645 /* StatisticsDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsDataSource.swift; sourceTree = "<group>"; };
+		B3C5ABB8223D870000303645 /* ColumnCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColumnCell.swift; sourceTree = "<group>"; };
+		B3C5ABBA223D8CB800303645 /* RoundedSquare.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundedSquare.swift; sourceTree = "<group>"; };
+		B3C5ABBC223D9A2B00303645 /* ChartCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartCell.swift; sourceTree = "<group>"; };
+		B3C5ABC0223D9B1300303645 /* ChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartView.swift; sourceTree = "<group>"; };
+		B3C5ABC2223DA1D500303645 /* Column.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Column.swift; sourceTree = "<group>"; };
 		B3DAD0A1223B496700F3F3FA /* SpeznazDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SpeznazDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B3DAD0A4223B496700F3F3FA /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B3DAD0A9223B496700F3F3FA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -65,6 +77,32 @@
 				B3C5ABAE223D758600303645 /* DecodingError.swift */,
 			);
 			path = Errors;
+			sourceTree = "<group>";
+		};
+		B3C5ABB6223D83D100303645 /* Data Sources */ = {
+			isa = PBXGroup;
+			children = (
+				B3C5ABB4223D831800303645 /* StatisticsDataSource.swift */,
+			);
+			path = "Data Sources";
+			sourceTree = "<group>";
+		};
+		B3C5ABB7223D86E900303645 /* Cells */ = {
+			isa = PBXGroup;
+			children = (
+				B3DAD0C3223B5A7700F3F3FA /* SwitchColorModeCell.swift */,
+				B3C5ABB8223D870000303645 /* ColumnCell.swift */,
+				B3C5ABBC223D9A2B00303645 /* ChartCell.swift */,
+			);
+			path = Cells;
+			sourceTree = "<group>";
+		};
+		B3C5ABBE223D9ADD00303645 /* Chart */ = {
+			isa = PBXGroup;
+			children = (
+				B3C5ABC0223D9B1300303645 /* ChartView.swift */,
+			);
+			path = Chart;
 			sourceTree = "<group>";
 		};
 		B3DAD098223B496700F3F3FA = {
@@ -117,6 +155,7 @@
 		B3DAD0B8223B4BEA00F3F3FA /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				B3C5ABB6223D83D100303645 /* Data Sources */,
 				B3C5ABAD223D757900303645 /* Errors */,
 				B3DAD0D4223D6C9300F3F3FA /* Extensions */,
 				B3DAD0CD223BEC5A00F3F3FA /* Data Models */,
@@ -130,7 +169,9 @@
 		B3DAD0B9223B4BEF00F3F3FA /* View */ = {
 			isa = PBXGroup;
 			children = (
-				B3DAD0C3223B5A7700F3F3FA /* SwitchColorModeCell.swift */,
+				B3C5ABBE223D9ADD00303645 /* Chart */,
+				B3C5ABB7223D86E900303645 /* Cells */,
+				B3C5ABBA223D8CB800303645 /* RoundedSquare.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -151,6 +192,7 @@
 				B3DAD0CE223BEC7600F3F3FA /* Chart.swift */,
 				B3C5ABB0223D759A00303645 /* LineType.swift */,
 				B3C5ABB2223D75B900303645 /* ColumnValue.swift */,
+				B3C5ABC2223DA1D500303645 /* Column.swift */,
 			);
 			path = "Data Models";
 			sourceTree = "<group>";
@@ -236,10 +278,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B3C5ABBB223D8CB800303645 /* RoundedSquare.swift in Sources */,
 				B3DAD0CF223BEC7600F3F3FA /* Chart.swift in Sources */,
 				B3DAD0CC223BE58900F3F3FA /* InputData.swift in Sources */,
+				B3C5ABC3223DA1D500303645 /* Column.swift in Sources */,
 				B3DAD0C8223B6AF900F3F3FA /* NavigationVC.swift in Sources */,
 				B3C5ABB3223D75B900303645 /* ColumnValue.swift in Sources */,
+				B3C5ABC1223D9B1300303645 /* ChartView.swift in Sources */,
 				B3C5ABB1223D759A00303645 /* LineType.swift in Sources */,
 				B3DAD0C2223B50C300F3F3FA /* Storage.swift in Sources */,
 				B3DAD0C6223B5A9600F3F3FA /* StatisticsVC.swift in Sources */,
@@ -247,8 +292,11 @@
 				B3DAD0C4223B5A7700F3F3FA /* SwitchColorModeCell.swift in Sources */,
 				B3DAD0D6223D6CB400F3F3FA /* UIColor+EasyInit.swift in Sources */,
 				B3DAD0A5223B496700F3F3FA /* AppDelegate.swift in Sources */,
+				B3C5ABBD223D9A2B00303645 /* ChartCell.swift in Sources */,
 				B3DAD0D8223D6CE800F3F3FA /* UIColor+Hex.swift in Sources */,
 				B3C5ABAF223D758600303645 /* DecodingError.swift in Sources */,
+				B3C5ABB9223D870000303645 /* ColumnCell.swift in Sources */,
+				B3C5ABB5223D831800303645 /* StatisticsDataSource.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

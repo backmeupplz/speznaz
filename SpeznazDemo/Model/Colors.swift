@@ -33,7 +33,6 @@ class Colors {
         
         // Constants
         let darkBlue = UIColor(red: 30, green: 42, blue: 55, alpha: 1)
-        
         let lightWhite = UIColor(red: 254, green: 254, blue: 254, alpha: 1)
         
         // Apply settings
@@ -55,6 +54,8 @@ class Colors {
                 UIColor(red: 254, green: 253, blue: 254) :
                 UIColor.black
         ]
+        UILabel.appearance().textColor = mode == .night ?
+            UIColor.white : UIColor.black
         
         // Hacky way to refresh the app
         refreshAppearance()

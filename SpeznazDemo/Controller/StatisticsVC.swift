@@ -9,24 +9,29 @@
 import UIKit
 
 class StatisticsVC: UITableViewController {
-
-    // MARK: - Table view data source -
-
-    override func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
-    }
-
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return section == 0 ? 1 : 0
-    }
     
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: String(describing: SwitchColorModeCell.self), for: indexPath)
+    // MARK: - Properties -
+    
+    let dataSource = StatisticsDataSource()
+    
+    // MARK: - VC Life Cycle -
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
         
-        return cell
+        tableView.dataSource = dataSource
+        tableView.delegate = dataSource
+        
+        selectAllRows()
     }
     
-    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 43.5
+    // MARK: - Private Functions -
+    
+    func selectAllRows() {
+        for section in 0 ..< tableView.numberOfSections {
+            for row in 0 ..< tableView.numberOfRows(inSection: section) {
+                tableView.selectRow(at: IndexPath(row: row, section: section), animated: false, scrollPosition: .none)
+            }
+        }
     }
 }
