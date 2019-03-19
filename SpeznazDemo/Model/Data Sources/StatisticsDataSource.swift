@@ -124,7 +124,7 @@ extension StatisticsDataSource: UITableViewDataSource {
 extension StatisticsDataSource: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         if (indexPath.section < data.charts.count && indexPath.row == 0) {
-            return 375
+            return 400
         }
         return 43.5
     }

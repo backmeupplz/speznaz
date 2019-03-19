@@ -89,13 +89,13 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="bKm-hN-SwT" customClass="ChartView" customModule="SpeznazDemo" customModuleProvider="target">
-                                            <rect key="frame" x="16" y="11" width="343" height="352.5"/>
+                                            <rect key="frame" x="16" y="18" width="343" height="345.5"/>
                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         </view>
                                     </subviews>
                                     <constraints>
                                         <constraint firstItem="bKm-hN-SwT" firstAttribute="leading" secondItem="3iO-RB-bZ4" secondAttribute="leading" constant="16" id="JlI-Ve-QrS"/>
-                                        <constraint firstItem="bKm-hN-SwT" firstAttribute="top" secondItem="3iO-RB-bZ4" secondAttribute="top" constant="11" id="Y4O-Wd-pPE"/>
+                                        <constraint firstItem="bKm-hN-SwT" firstAttribute="top" secondItem="3iO-RB-bZ4" secondAttribute="top" constant="18" id="Y4O-Wd-pPE"/>
                                         <constraint firstAttribute="trailing" secondItem="bKm-hN-SwT" secondAttribute="trailing" constant="16" id="af8-qJ-uCH"/>
                                         <constraint firstAttribute="bottom" secondItem="bKm-hN-SwT" secondAttribute="bottom" constant="11" id="zUr-0U-pYc"/>
                                     </constraints>

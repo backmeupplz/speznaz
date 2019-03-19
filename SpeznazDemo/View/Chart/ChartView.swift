@@ -16,6 +16,7 @@ class ChartView: UIView {
         static let navigateViewHeight: CGFloat = 45
         static let labelHeight: CGFloat = 16
         static let font = CTFontCreateWithName(UIFont.systemFont(ofSize: 1).fontName as CFString, 1, nil)
+        static let spacing: CGFloat = 16
     }
 
     // MARK: - Properties -
@@ -63,10 +64,6 @@ class ChartView: UIView {
         }
         topYValue = CGFloat(tempTopValue)
         bottomYValue = CGFloat(tempBottomValue)
-        bottomYValue = bottomYValue - ((topYValue - bottomYValue) / 10.0)
-        if (bottomYValue < 0) {
-            bottomYValue = 0.0
-        }
         // Setup X
         topXValue = CGFloat(chart.columns["x"]!.values.last!)
         bottomXValue = CGFloat(chart.columns["x"]!.values.first!)
@@ -91,6 +88,10 @@ class ChartView: UIView {
             addLine(from: from, to: to)
         }
         // Draw charts
+        var elevatedBottomYValue = bottomYValue - ((topYValue - bottomYValue) / 10.0)
+        if (elevatedBottomYValue < 0) {
+            elevatedBottomYValue = 0.0
+        }
         for columnName in chart.columnNames {
             // Get config and values
             let xValues = chart.columns["x"]!.values
@@ -102,7 +103,7 @@ class ChartView: UIView {
                 let x = CGFloat(xValues[i])
                 let translatedX = ((x - bottomXValue) / (topXValue - bottomXValue)) * frame.width
                 let y = CGFloat(yValues[i])
-                let translatedY = chartHeight - (((y - bottomYValue) / (topYValue - bottomYValue)) * chartHeight)
+                let translatedY = chartHeight - (((y - elevatedBottomYValue) / (topYValue - elevatedBottomYValue)) * chartHeight)
                 let coordinate = CGPoint(x: translatedX, y: translatedY)
                 if (i == 0) {
                     path.move(to: coordinate)
@@ -115,7 +116,7 @@ class ChartView: UIView {
             chartLayer.path = path.cgPath
             chartLayer.strokeColor = color
             chartLayer.fillColor = UIColor.clear.cgColor
-            chartLayer.lineWidth = 3
+            chartLayer.lineWidth = 2
             chartLayer.lineCap = .round
             layer.addSublayer(chartLayer)
         }
@@ -126,6 +127,40 @@ class ChartView: UIView {
             let text = "\(Int(floor(floor(chartHeight - (y + Constants.labelHeight)) / chartHeight * (topYValue - bottomYValue) + bottomYValue)))"
             addLabel(text: text, at: CGPoint(x: 0, y: y))
         }
+        // Draw navigate view
+        let strokeWidth = CGFloat(2)
+        for columnName in chart.columnNames {
+            // Get config and values
+            let xValues = chart.columns["x"]!.values
+            let yValues = chart.columns[columnName]!.values
+            let color = chart.colors[columnName]!.cgColor
+            // Create path
+            let path = UIBezierPath()
+            for i in 0 ..< yValues.count {
+                let x = CGFloat(xValues[i])
+                let translatedX = ((x - bottomXValue) / (topXValue - bottomXValue)) * (frame.width - (strokeWidth * 2)) + strokeWidth
+                let y = CGFloat(yValues[i])
+                let translatedY = frame.height - strokeWidth - (((y - bottomYValue) / (topYValue - bottomYValue)) * (Constants.navigateViewHeight - (strokeWidth * 2)))
+                let coordinate = CGPoint(x: translatedX, y: translatedY)
+                if (i == 0) {
+                    path.move(to: coordinate)
+                } else {
+                    path.addLine(to: coordinate)
+                }
+            }
+            // Draw line
+            let chartLayer = CAShapeLayer()
+            chartLayer.path = path.cgPath
+            chartLayer.strokeColor = color
+            chartLayer.fillColor = UIColor.clear.cgColor
+            chartLayer.lineWidth = strokeWidth
+            chartLayer.lineCap = .round
+            layer.addSublayer(chartLayer)
+        }
+        // Draw shaded view
+        let shadedViewRect = CGRect(x: 0, y: frame.height - Constants.navigateViewHeight, width: frame.width, height: Constants.navigateViewHeight)
+        let shadedViewColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.1)
+        add(rect: shadedViewRect, color: shadedViewColor)
     }
     
     func addLine(from: CGPoint, to: CGPoint) {
@@ -150,5 +185,12 @@ class ChartView: UIView {
         textLayer.font = Constants.font
         textLayer.fontSize = 12.0
         layer.addSublayer(textLayer)
+    }
+    
+    func add(rect: CGRect, color: UIColor) {
+        let rectLayer = CAShapeLayer()
+        rectLayer.path = UIBezierPath(rect: rect).cgPath
+        rectLayer.fillColor = color.cgColor
+        layer.addSublayer(rectLayer)
     }
 }
