@@ -13,6 +13,4 @@ class ChartCell: UITableViewCell {
     // MARK: - Outlets -
     
     @IBOutlet weak var chartView: ChartView!
-    
-
 }

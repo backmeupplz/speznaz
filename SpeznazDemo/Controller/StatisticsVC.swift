@@ -25,6 +25,12 @@ class StatisticsVC: UITableViewController {
         selectAllRows()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        tableView.reloadData()
+    }
+    
     // MARK: - Private Functions -
     
     func selectAllRows() {
