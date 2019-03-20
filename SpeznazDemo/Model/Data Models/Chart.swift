@@ -14,6 +14,7 @@ class Chart: Decodable {
     var types: [String: LineType]
     var names: [String: String]
     var colors: [String: UIColor]
+    var state: ChartState = ChartState()
     
     enum CodingKeys: CodingKey {
         case columns

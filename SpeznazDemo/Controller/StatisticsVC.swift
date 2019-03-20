@@ -25,18 +25,26 @@ class StatisticsVC: UITableViewController {
         selectAllRows()
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
         
-        tableView.reloadData()
+        updateAllRows()
     }
     
     // MARK: - Private Functions -
     
     func selectAllRows() {
-        for section in 0 ..< tableView.numberOfSections {
-            for row in 0 ..< tableView.numberOfRows(inSection: section) {
+        for section in 0 ..< tableView.numberOfSections - 1 {
+            for row in 1 ..< tableView.numberOfRows(inSection: section) {
                 tableView.selectRow(at: IndexPath(row: row, section: section), animated: false, scrollPosition: .none)
+            }
+        }
+    }
+    
+    func updateAllRows() {
+        for section in 0 ..< tableView.numberOfSections - 1 {
+            if let cell = tableView.cellForRow(at: IndexPath(row: 0, section: section)) as? ChartCell {
+                cell.chartView.updateData()
             }
         }
     }

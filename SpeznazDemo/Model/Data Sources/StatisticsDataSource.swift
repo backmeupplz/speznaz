@@ -36,10 +36,6 @@ extension StatisticsDataSource: UITableViewDataSource {
         }
     }
     
-    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        return "Followers"
-    }
-    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if (indexPath.row == 0) {
             return
@@ -51,7 +47,7 @@ extension StatisticsDataSource: UITableViewDataSource {
         }
         column.selected = true
         cell.accessoryType = .checkmark
-        
+
         updateData(for: tableView, at: indexPath.section)
     }
     
@@ -66,7 +62,7 @@ extension StatisticsDataSource: UITableViewDataSource {
         }
         column.selected = false
         cell.accessoryType = .none
-        
+
         updateData(for: tableView, at: indexPath.section)
     }
     
@@ -111,6 +107,18 @@ extension StatisticsDataSource: UITableViewDataSource {
         return cell
     }
     
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        if (section == data.charts.count) {
+            return nil
+        }
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "HeaderCell") else {
+            return UITableViewCell()
+        }
+        cell.backgroundColor = UIColor.clear
+        cell.contentView.backgroundColor = UIColor.clear
+        return cell
+    }
+    
     // MARK: - Extra Functions -
     
     func updateData(for tableView: UITableView, at section: Int) {
@@ -127,5 +135,12 @@ extension StatisticsDataSource: UITableViewDelegate {
             return 400
         }
         return 43.5
+    }
+    
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        if (section == data.charts.count) {
+            return 0
+        }
+        return 40
     }
 }

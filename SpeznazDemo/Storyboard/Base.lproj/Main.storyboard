@@ -45,11 +45,11 @@
                                     <outlet property="switchColorButton" destination="9DT-IJ-kzH" id="1AX-pH-ECL"/>
                                 </connections>
                             </tableViewCell>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" accessoryType="checkmark" indentationWidth="10" reuseIdentifier="ColumnCell" id="qOV-PJ-yHK" customClass="ColumnCell" customModule="SpeznazDemo" customModuleProvider="target">
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" reuseIdentifier="ColumnCell" id="qOV-PJ-yHK" customClass="ColumnCell" customModule="SpeznazDemo" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="99.5" width="375" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="qOV-PJ-yHK" id="MNr-Yd-zF3">
-                                    <rect key="frame" x="0.0" y="0.0" width="335" height="43.5"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="OKC-v3-lZj" customClass="RoundedSquare" customModule="SpeznazDemo" customModuleProvider="target">
@@ -61,7 +61,7 @@
                                             </constraints>
                                         </view>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uhR-Eq-UT2">
-                                            <rect key="frame" x="39" y="11.5" width="280" height="20.5"/>
+                                            <rect key="frame" x="39" y="11.5" width="312" height="20.5"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                             <nil key="textColor"/>
                                             <nil key="highlightedColor"/>
@@ -81,28 +81,50 @@
                                     <outlet property="title" destination="uhR-Eq-UT2" id="6l7-T1-S02"/>
                                 </connections>
                             </tableViewCell>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" reuseIdentifier="ChartCell" rowHeight="375" id="pdg-MT-avV" customClass="ChartCell" customModule="SpeznazDemo" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="143.5" width="375" height="375"/>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" reuseIdentifier="HeaderCell" id="pdg-MT-avV">
+                                <rect key="frame" x="0.0" y="143.5" width="375" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="pdg-MT-avV" id="3iO-RB-bZ4">
-                                    <rect key="frame" x="0.0" y="0.0" width="375" height="374.5"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
-                                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="bKm-hN-SwT" customClass="ChartView" customModule="SpeznazDemo" customModuleProvider="target">
-                                            <rect key="frame" x="16" y="18" width="343" height="345.5"/>
+                                        <label opaque="NO" userInteractionEnabled="NO" alpha="0.5" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="FOLLOWERS" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vYJ-9d-Qz4">
+                                            <rect key="frame" x="12" y="20" width="73" height="14.5"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                            <nil key="textColor"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                    </subviews>
+                                    <color key="tintColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <constraints>
+                                        <constraint firstItem="vYJ-9d-Qz4" firstAttribute="leading" secondItem="3iO-RB-bZ4" secondAttribute="leadingMargin" constant="-4" id="5b0-7U-tDn"/>
+                                        <constraint firstItem="vYJ-9d-Qz4" firstAttribute="centerY" secondItem="3iO-RB-bZ4" secondAttribute="centerY" constant="6.25" id="z15-I0-Qfs"/>
+                                    </constraints>
+                                </tableViewCellContentView>
+                                <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                            </tableViewCell>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" reuseIdentifier="ChartCell" rowHeight="400" id="ycJ-ON-XwR" customClass="ChartCell" customModule="SpeznazDemo" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="187.5" width="375" height="400"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="ycJ-ON-XwR" id="hZG-YZ-ndU">
+                                    <rect key="frame" x="0.0" y="0.0" width="375" height="399.5"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <subviews>
+                                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="MOO-s9-fhr" customClass="ChartView" customModule="SpeznazDemo" customModuleProvider="target">
+                                            <rect key="frame" x="16" y="18" width="343" height="370.5"/>
                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         </view>
                                     </subviews>
                                     <constraints>
-                                        <constraint firstItem="bKm-hN-SwT" firstAttribute="leading" secondItem="3iO-RB-bZ4" secondAttribute="leading" constant="16" id="JlI-Ve-QrS"/>
-                                        <constraint firstItem="bKm-hN-SwT" firstAttribute="top" secondItem="3iO-RB-bZ4" secondAttribute="top" constant="18" id="Y4O-Wd-pPE"/>
-                                        <constraint firstAttribute="trailing" secondItem="bKm-hN-SwT" secondAttribute="trailing" constant="16" id="af8-qJ-uCH"/>
-                                        <constraint firstAttribute="bottom" secondItem="bKm-hN-SwT" secondAttribute="bottom" constant="11" id="zUr-0U-pYc"/>
+                                        <constraint firstAttribute="trailing" secondItem="MOO-s9-fhr" secondAttribute="trailing" constant="16" id="3Pl-Wy-P1H"/>
+                                        <constraint firstItem="MOO-s9-fhr" firstAttribute="top" secondItem="hZG-YZ-ndU" secondAttribute="top" constant="18" id="3Vv-iz-tXM"/>
+                                        <constraint firstItem="MOO-s9-fhr" firstAttribute="leading" secondItem="hZG-YZ-ndU" secondAttribute="leading" constant="16" id="GUh-e3-c51"/>
+                                        <constraint firstAttribute="bottom" secondItem="MOO-s9-fhr" secondAttribute="bottom" constant="11" id="g66-x3-aUX"/>
                                     </constraints>
                                 </tableViewCellContentView>
                                 <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 <connections>
-                                    <outlet property="chartView" destination="bKm-hN-SwT" id="egs-P4-8BD"/>
+                                    <outlet property="chartView" destination="MOO-s9-fhr" id="B35-cw-ZrI"/>
                                 </connections>
                             </tableViewCell>
                         </prototypes>
