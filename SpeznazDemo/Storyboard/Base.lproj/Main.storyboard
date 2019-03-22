@@ -113,6 +113,7 @@
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="MOO-s9-fhr" customClass="ChartView" customModule="SpeznazDemo" customModuleProvider="target">
                                             <rect key="frame" x="16" y="18" width="343" height="370.5"/>
                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                            <gestureRecognizers/>
                                         </view>
                                     </subviews>
                                     <constraints>

@@ -9,6 +9,13 @@
 import UIKit
 
 class ChartState {
-    var bottom: CGFloat = 0.20
-    var top: CGFloat = 0.80
+    var bottom: CGFloat = 0.5
+    var top: CGFloat = 1.0
+    
+    convenience init(_ bottom: CGFloat, _ top: CGFloat) {
+        self.init()
+        
+        self.bottom = bottom
+        self.top = top
+    }
 }

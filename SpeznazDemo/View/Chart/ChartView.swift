@@ -8,6 +8,12 @@
 
 import UIKit
 
+enum PannedView: Int {
+    case leftArrow
+    case rightArrow
+    case navigationView
+}
+
 class ChartView: UIView {
     
     // MARK: - Private Constants -
@@ -20,8 +26,12 @@ class ChartView: UIView {
         static let arrowWidth: CGFloat = 10
         static let arrowLineWidth: CGFloat = 2
         
-        static let arrowImageHeight: CGFloat = 16
-        static let arrowImageWidth: CGFloat = 3
+        static let arrowImageHeight: CGFloat = 10
+        static let arrowImageWidth: CGFloat = 4
+        
+        static let arrowTouchExtraWidth: CGFloat = 5
+        
+        static let minDiffInBottomAndTop: CGFloat = 0.1
     }
 
     // MARK: - Properties -
@@ -37,6 +47,22 @@ class ChartView: UIView {
     var bottomYValue: CGFloat!
     var topXValue: CGFloat!
     var bottomXValue: CGFloat!
+    
+    var panGR: UIPanGestureRecognizer!
+    
+    var pannedView: PannedView?
+    var pannedState: ChartState!
+    
+    var leftArrowRect: CGRect!
+    var rightArrowRect: CGRect!
+    
+    // MARK: - View Life Cycle -
+    
+    override func awakeFromNib() {
+        super.awakeFromNib()
+        
+        addPanGR()
+    }
     
     // MARK: - Public Functions -
     
@@ -167,6 +193,13 @@ class ChartView: UIView {
         layer.addSublayer(rectLayer)
     }
     
+    func add(roundedRect: CGRect, color: UIColor, by roundedCorners: UIRectCorner, cornerRadius: CGFloat = 2) {
+        let rectLayer = CAShapeLayer()
+        rectLayer.path = UIBezierPath(roundedRect: roundedRect, byRoundingCorners: roundedCorners, cornerRadii: CGSize(width: cornerRadius, height: cornerRadius)).cgPath
+        rectLayer.fillColor = color.cgColor
+        layer.addSublayer(rectLayer)
+    }
+    
     func drawNavigationView() {
         // Draw navigate view
         let strokeWidth = CGFloat(2)
@@ -213,17 +246,17 @@ class ChartView: UIView {
         add(rect: rightShadedViewRect, color: shadedViewColor)
         // Draw left arrow view
         let arrowColor = UIColor(red: 195, green: 206, blue: 217, alpha: 0.8)
-        let leftArrowRect = CGRect(x: frame.width * chart.state.bottom,
+        leftArrowRect = CGRect(x: frame.width * chart.state.bottom,
                                    y: frame.height - Constants.navigationViewHeight - Constants.arrowLineWidth,
                                    width: Constants.arrowWidth,
                                    height: Constants.navigationViewHeight + (Constants.arrowLineWidth * 2))
-        add(rect: leftArrowRect, color: arrowColor)
+        add(roundedRect: leftArrowRect, color: arrowColor, by: [.bottomLeft, .topLeft])
         // Draw right arrow view
-        let rightArrowRect = CGRect(x: frame.width * chart.state.top - Constants.arrowWidth,
+        rightArrowRect = CGRect(x: frame.width * chart.state.top - Constants.arrowWidth,
                                     y: frame.height - Constants.navigationViewHeight - Constants.arrowLineWidth,
                                     width: Constants.arrowWidth,
                                     height: Constants.navigationViewHeight + (Constants.arrowLineWidth * 2))
-        add(rect: rightArrowRect, color: arrowColor)
+        add(roundedRect: rightArrowRect, color: arrowColor, by: [.bottomRight, .topRight])
         // Draw bottom arrow view
         let arrowViewWidth = rightArrowRect.minX - (leftArrowRect.minX + leftArrowRect.width)
         let bottomArrowRect = CGRect(x: frame.width * chart.state.bottom + Constants.arrowWidth,
@@ -267,5 +300,63 @@ class ChartView: UIView {
         rightArrowLayer.lineWidth = 2
         rightArrowLayer.lineCap = .round
         layer.addSublayer(rightArrowLayer)
+    }
+    
+    // MARK: - Extra Functions -
+    
+    func addPanGR() {
+        panGR = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
+        panGR.delaysTouchesBegan = false
+        addGestureRecognizer(panGR)
+    }
+    
+    @objc func handlePan(_ gr: UIPanGestureRecognizer) {
+        let location = gr.location(in: self)
+        let navigationViewScrollableRect = CGRect(x: leftArrowRect.minX + leftArrowRect.width + (Constants.arrowTouchExtraWidth / 2),
+                                                  y: leftArrowRect.minY,
+                                                  width: (rightArrowRect.minX - (Constants.arrowTouchExtraWidth / 2)) - (leftArrowRect.minX + leftArrowRect.width + (Constants.arrowTouchExtraWidth / 2)),
+                                                  height: leftArrowRect.height)
+        if gr.state == .began {
+            if (leftArrowRect.insetBy(dx: -Constants.arrowTouchExtraWidth, dy: 0).contains(location)) {
+                pannedView = .leftArrow
+            } else if (rightArrowRect.insetBy(dx: -Constants.arrowTouchExtraWidth, dy: 0).contains(location)) {
+                pannedView = .rightArrow
+            } else if (navigationViewScrollableRect.contains(location)) {
+                pannedView = .navigationView
+            }
+            pannedState = ChartState(chart.state.bottom, chart.state.top)
+        }
+        if gr.state == .began || gr.state == .changed {
+            let translation = gr.translation(in: self)
+            var relativeTranslation = translation.x / frame.width
+            if (pannedView == .leftArrow) {
+                if pannedState.bottom + relativeTranslation < 0 {
+                    relativeTranslation = 0 - pannedState.bottom
+                } else if pannedState.bottom + relativeTranslation > pannedState.top - Constants.minDiffInBottomAndTop {
+                    relativeTranslation = pannedState.top - Constants.minDiffInBottomAndTop - pannedState.bottom
+                }
+                chart.state.bottom = pannedState.bottom + relativeTranslation
+                updateData()
+            } else if (pannedView == .rightArrow) {
+                if pannedState.top + relativeTranslation > 1 {
+                    relativeTranslation = 1 - pannedState.top
+                } else if pannedState.top + relativeTranslation < pannedState.bottom + Constants.minDiffInBottomAndTop {
+                    relativeTranslation = pannedState.bottom + Constants.minDiffInBottomAndTop - pannedState.top
+                }
+                chart.state.top = pannedState.top + relativeTranslation
+                updateData()
+            } else if (pannedView == .navigationView) {
+                if pannedState.bottom + relativeTranslation < 0 {
+                    relativeTranslation = 0 - pannedState.bottom
+                } else if pannedState.top + relativeTranslation > 1 {
+                    relativeTranslation = 1 - pannedState.top
+                }
+                chart.state.bottom = pannedState.bottom + relativeTranslation
+                chart.state.top = pannedState.top + relativeTranslation
+                updateData()
+            }
+        } else {
+            pannedView = nil
+        }
     }
 }
