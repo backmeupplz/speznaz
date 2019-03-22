@@ -88,8 +88,8 @@
                                     <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
-                                        <label opaque="NO" userInteractionEnabled="NO" alpha="0.5" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="FOLLOWERS" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vYJ-9d-Qz4">
-                                            <rect key="frame" x="12" y="20" width="73" height="14.5"/>
+                                        <label opaque="NO" userInteractionEnabled="NO" alpha="0.5" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="FOLLOWERS" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vYJ-9d-Qz4">
+                                            <rect key="frame" x="12" y="21" width="363" height="14.5"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="12"/>
                                             <nil key="textColor"/>
                                             <nil key="highlightedColor"/>
@@ -98,6 +98,7 @@
                                     <color key="tintColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     <constraints>
                                         <constraint firstItem="vYJ-9d-Qz4" firstAttribute="leading" secondItem="3iO-RB-bZ4" secondAttribute="leadingMargin" constant="-4" id="5b0-7U-tDn"/>
+                                        <constraint firstAttribute="trailing" secondItem="vYJ-9d-Qz4" secondAttribute="trailing" id="IEj-gs-tXW"/>
                                         <constraint firstItem="vYJ-9d-Qz4" firstAttribute="centerY" secondItem="3iO-RB-bZ4" secondAttribute="centerY" constant="6.25" id="z15-I0-Qfs"/>
                                     </constraints>
                                 </tableViewCellContentView>

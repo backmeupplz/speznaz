@@ -15,38 +15,22 @@ enum PannedView: Int {
 }
 
 class ChartView: UIView {
-    
-    // MARK: - Private Constants -
-    
-    struct Constants {
-        static let navigationViewHeight: CGFloat = 45
-        static let labelHeight: CGFloat = 16
-        static let font = CTFontCreateWithName(UIFont.systemFont(ofSize: 1).fontName as CFString, 1, nil)
-        static let spacing: CGFloat = 16
-        static let arrowWidth: CGFloat = 10
-        static let arrowLineWidth: CGFloat = 2
-        
-        static let arrowImageHeight: CGFloat = 10
-        static let arrowImageWidth: CGFloat = 4
-        
-        static let arrowTouchExtraWidth: CGFloat = 5
-        
-        static let minDiffInBottomAndTop: CGFloat = 0.1
-    }
-
     // MARK: - Properties -
     
     var chart: Chart! {
         didSet {
-            compute()
-            render()
+            selectedColumnsNames = chart.columnNames
+                .filter { chart.columns[$0]?.selected ?? false }
+            updateData(animated: false)
         }
     }
+    var selectedColumnsNames = [String]()
     
-    var topYValue: CGFloat!
-    var bottomYValue: CGFloat!
-    var topXValue: CGFloat!
-    var bottomXValue: CGFloat!
+    var oldMaxMinY = MaxMin(0, 0)
+    var maxMinY = MaxMin(0, 0)
+    var maxMinX = MaxMin(0, 0)
+    var yWentUp = true
+    var yChanged = false
     
     var panGR: UIPanGestureRecognizer!
     
@@ -55,6 +39,18 @@ class ChartView: UIView {
     
     var leftArrowRect: CGRect!
     var rightArrowRect: CGRect!
+    
+    var colorMode: ColorMode!
+    
+    var chartLayers = [String: CAShapeLayer]()
+    var horizontalGridLinesLayers = [CAShapeLayer]()
+    var horizontalGridTitlesLayers = [CATextLayer]()
+    
+    var navigationViewChartLayers = [String: CAShapeLayer]()
+    var navigationViewRestLayers = [CALayer]()
+    
+    var chartHeight: CGFloat!
+    var segmentHeight: CGFloat!
     
     // MARK: - View Life Cycle -
     
@@ -66,9 +62,10 @@ class ChartView: UIView {
     
     // MARK: - Public Functions -
     
-    public func updateData() {
+    public func updateData(animated: Bool = true) {
+        colorMode = Colors.mode
         compute()
-        render()
+        render(animated: animated)
     }
     
     // MARK: - Computation -
@@ -77,7 +74,7 @@ class ChartView: UIView {
         // Get values
         var allValues = Set<Int>()
         for columnName in chart.columnNames {
-            guard let column = chart.columns[columnName] else {
+            guard let column = chart.columns[columnName], column.selected else {
                 continue
             }
             allValues = allValues.union(column.values)
@@ -93,117 +90,116 @@ class ChartView: UIView {
                 tempBottomValue = value
             }
         }
-        topYValue = CGFloat(tempTopValue)
-        bottomYValue = CGFloat(tempBottomValue)
+        // Save value for later
+        oldMaxMinY = maxMinY
+        // Setup Y
+        maxMinY = MaxMin(CGFloat(tempTopValue), CGFloat(tempBottomValue))
         // Setup X
-        topXValue = CGFloat(chart.columns["x"]!.values.last!)
-        bottomXValue = CGFloat(chart.columns["x"]!.values.first!)
+        maxMinX = MaxMin(CGFloat(chart.columns["x"]!.values.last!),
+                         CGFloat(chart.columns["x"]!.values.first!))
+        // Calculate if y went up
+        yWentUp = oldMaxMinY.diff > maxMinY.diff
+        yChanged = oldMaxMinY.diff != maxMinY.diff
+        // Calculate dimensions
+        chartHeight = frame.height - Constants.navigationViewHeight - Constants.labelHeight
+        segmentHeight = (chartHeight - Constants.labelHeight) / 5.0
     }
     
     // MARK: - Rendering -
     
-    func render() {
-        layer.sublayers?.forEach { $0.removeFromSuperlayer() }
-        addGrid()
+    func render(animated: Bool) {
+        drawGrid(animated: animated)
+        drawCharts(animated: animated)
+        drawGridTitles(animated: animated)
+//        drawNavigationViewCharts(animated: animated)
         drawNavigationView()
     }
     
-    func addGrid() {
-        let chartHeight = frame.height - Constants.navigationViewHeight - Constants.labelHeight
-        let segmentHeight = (chartHeight - Constants.labelHeight) / 5.0
-        
+    func drawGrid(animated: Bool) {
+        // Remove horizontal grid lines
+        for line in horizontalGridLinesLayers {
+            if animated && yChanged {
+                line.move(up: yWentUp,
+                          fadeIn: false,
+                          removeOnCompletion: true,
+                          movesIn: false)
+            } else {
+                line.removeFromSuperlayer()
+            }
+        }
+        horizontalGridLinesLayers = []
         // Draw horizontal grid lines
         for i in 0 ..< 6 {
             let cgI = CGFloat(i)
             let from = CGPoint(x: 0, y: chartHeight - (cgI * segmentHeight))
             let to = CGPoint(x: frame.width, y: chartHeight - (cgI * segmentHeight))
-            addLine(from: from, to: to)
-        }
-        // Draw charts
-        var elevatedBottomYValue = bottomYValue - ((topYValue - bottomYValue) / 10.0)
-        if (elevatedBottomYValue < 0) {
-            elevatedBottomYValue = 0.0
-        }
-        for columnName in chart.columnNames {
-            // Get config and values
-            let xValues = chart.columns["x"]!.values
-            let yValues = chart.columns[columnName]!.values
-            let color = chart.colors[columnName]!.cgColor
-            // Create path
-            let path = UIBezierPath()
-            for i in 0 ..< yValues.count {
-                let x = CGFloat(xValues[i])
-                let translatedX = ((x - bottomXValue) / (topXValue - bottomXValue)) * frame.width
-                let y = CGFloat(yValues[i])
-                let translatedY = chartHeight - (((y - elevatedBottomYValue) / (topYValue - elevatedBottomYValue)) * chartHeight)
-                let coordinate = CGPoint(x: translatedX, y: translatedY)
-                if (i == 0) {
-                    path.move(to: coordinate)
-                } else {
-                    path.addLine(to: coordinate)
-                }
+            let line = addLine(from: from,
+                               to: to,
+                               color: colorMode == .day ?
+                                UIColor(red: 245, green: 244, blue: 245) :
+                                UIColor(red: 26, green: 35, blue: 46))
+            horizontalGridLinesLayers.append(line)
+            if animated && yChanged {
+                line.move(up: yWentUp,
+                          fadeIn: true,
+                          removeOnCompletion: false,
+                          movesIn: true)
             }
-            // Draw line
-            let chartLayer = CAShapeLayer()
-            chartLayer.path = path.cgPath
-            chartLayer.strokeColor = color
-            chartLayer.fillColor = UIColor.clear.cgColor
-            chartLayer.lineWidth = 2
-            chartLayer.lineCap = .round
-            layer.addSublayer(chartLayer)
         }
+    }
+    
+    func drawGridTitles(animated: Bool) {
+        // Remove horizontal grid lines titles
+        for title in horizontalGridTitlesLayers {
+            if animated && yChanged {
+                title.move(up: yWentUp,
+                           fadeIn: false,
+                           removeOnCompletion: true,
+                           movesIn: false)
+            } else {
+                title.removeFromSuperlayer()
+            }
+        }
+        horizontalGridTitlesLayers = []
         // Draw horizontal grid lines titles
         for i in 0 ..< 7 {
             let cgI = CGFloat(i)
             let y = chartHeight - (cgI * segmentHeight) - Constants.labelHeight
-            let text = "\(Int(floor(floor(chartHeight - (y + Constants.labelHeight)) / chartHeight * (topYValue - bottomYValue) + bottomYValue)))"
-            addLabel(text: text, at: CGPoint(x: 0, y: y))
+            let minimal = chartHeight * maxMinY.diff + maxMinY.min
+            let current = floor(chartHeight - (y + Constants.labelHeight))
+            let flooredResult = floor(current / minimal)
+            let roundedResult = Int(flooredResult)
+            let text = "\(roundedResult)"
+            let label = addLabel(text: text, at: CGPoint(x: 0, y: y), color: colorMode == .day ?
+                UIColor(red: 168, green: 173, blue: 180) :
+                UIColor(red: 76, green: 91, blue: 107))
+            horizontalGridTitlesLayers.append(label)
+            if animated && yChanged {
+                label.move(up: yWentUp,
+                          fadeIn: true,
+                          removeOnCompletion: false,
+                          movesIn: true)
+            }
         }
-        
     }
     
-    func addLine(from: CGPoint, to: CGPoint) {
-        let path = UIBezierPath()
-        path.move(to: from)
-        path.addLine(to: to)
-        
-        let lineLayer = CAShapeLayer()
-        lineLayer.path = path.cgPath
-        lineLayer.lineWidth = 1
-        lineLayer.strokeColor = UIColor(red: 245, green: 244, blue: 245).cgColor
-        layer.addSublayer(lineLayer)
-    }
-    
-    func addLabel(text: String, at: CGPoint) {
-        let textLayer = CATextLayer()
-        textLayer.frame = CGRect(x: at.x, y: at.y, width: 400, height: Constants.labelHeight)
-        textLayer.string = text
-        textLayer.foregroundColor = UIColor(red: 168, green: 173, blue: 180).cgColor
-        textLayer.alignmentMode = .left
-        textLayer.contentsScale = UIScreen.main.scale
-        textLayer.font = Constants.font
-        textLayer.fontSize = 12.0
-        layer.addSublayer(textLayer)
-    }
-    
-    func add(rect: CGRect, color: UIColor) {
-        let rectLayer = CAShapeLayer()
-        rectLayer.path = UIBezierPath(rect: rect).cgPath
-        rectLayer.fillColor = color.cgColor
-        layer.addSublayer(rectLayer)
-    }
-    
-    func add(roundedRect: CGRect, color: UIColor, by roundedCorners: UIRectCorner, cornerRadius: CGFloat = 2) {
-        let rectLayer = CAShapeLayer()
-        rectLayer.path = UIBezierPath(roundedRect: roundedRect, byRoundingCorners: roundedCorners, cornerRadii: CGSize(width: cornerRadius, height: cornerRadius)).cgPath
-        rectLayer.fillColor = color.cgColor
-        layer.addSublayer(rectLayer)
-    }
-    
-    func drawNavigationView() {
-        // Draw navigate view
-        let strokeWidth = CGFloat(2)
+    func drawCharts(animated: Bool) {
+        // Draw charts
+        var elevatedBottomYValue = maxMinY.min - (maxMinY.diff / 10.0)
+        if (elevatedBottomYValue < 0) {
+            elevatedBottomYValue = 0.0
+        }
         for columnName in chart.columnNames {
+            guard let column = chart.columns[columnName] else {
+                continue
+            }
+            // Modify selection
+            let wasSelected = selectedColumnsNames.contains(columnName)
+            if wasSelected && !column.selected {
+                selectedColumnsNames = selectedColumnsNames.filter { $0 != columnName }
+            } else if !wasSelected && column.selected {
+                selectedColumnsNames.append(columnName)
+            }
             // Get config and values
             let xValues = chart.columns["x"]!.values
             let yValues = chart.columns[columnName]!.values
@@ -212,9 +208,100 @@ class ChartView: UIView {
             let path = UIBezierPath()
             for i in 0 ..< yValues.count {
                 let x = CGFloat(xValues[i])
-                let translatedX = ((x - bottomXValue) / (topXValue - bottomXValue)) * (frame.width - (strokeWidth * 2)) + strokeWidth
+                let translatedX = ((x - maxMinX.min) / maxMinX.diff) * frame.width
                 let y = CGFloat(yValues[i])
-                let translatedY = frame.height - strokeWidth - (((y - bottomYValue) / (topYValue - bottomYValue)) * (Constants.navigationViewHeight - (strokeWidth * 2)))
+                let translatedY = chartHeight - (((y - elevatedBottomYValue) / (maxMinY.max - elevatedBottomYValue)) * chartHeight)
+                let coordinate = CGPoint(x: translatedX, y: translatedY)
+                if (i == 0) {
+                    path.move(to: coordinate)
+                } else {
+                    path.addLine(to: coordinate)
+                }
+            }
+            let oldPath = UIBezierPath()
+            if !wasSelected {
+                var oldElevatedBottomYValue = oldMaxMinY.min - (oldMaxMinY.diff / 10.0)
+                if (oldElevatedBottomYValue < 0) {
+                    oldElevatedBottomYValue = 0.0
+                }
+                for i in 0 ..< yValues.count {
+                    let x = CGFloat(xValues[i])
+                    let translatedX = ((x - maxMinX.min) / maxMinX.diff) * frame.width
+                    let y = CGFloat(yValues[i])
+                    let translatedY = chartHeight - (((y - oldElevatedBottomYValue) / (oldMaxMinY.max - oldElevatedBottomYValue)) * chartHeight)
+                    let coordinate = CGPoint(x: translatedX, y: translatedY)
+                    if (i == 0) {
+                        oldPath.move(to: coordinate)
+                    } else {
+                        oldPath.addLine(to: coordinate)
+                    }
+                }
+            }
+            // Draw line
+            let chartLayer = chartLayers[columnName] ?? CAShapeLayer()
+            
+            if animated && wasSelected && column.selected {
+                let animation = CABasicAnimation(keyPath: "path")
+                animation.fromValue = chartLayer.path
+                animation.toValue = path.cgPath
+                animation.duration = AnimationConstants.animationDuration
+                chartLayer.add(animation, forKey: "animatePath")
+            } else if animated && !wasSelected && column.selected {
+                chartLayer.opacity = 0
+                chartLayer.path = oldPath.cgPath
+                chartLayer.fade(fadeIn: true, removeOnCompletion: false)
+                let animation = CABasicAnimation(keyPath: "path")
+                animation.fromValue = chartLayer.path
+                animation.toValue = path.cgPath
+                animation.duration = AnimationConstants.animationDuration
+                chartLayer.add(animation, forKey: "animatePath")
+            } else if animated && wasSelected && !column.selected {
+                chartLayer.opacity = 1
+                chartLayer.path = oldPath.cgPath
+                chartLayer.fade(fadeIn: false, removeOnCompletion: true)
+                let animation = CABasicAnimation(keyPath: "path")
+                animation.fromValue = chartLayer.path
+                animation.toValue = path.cgPath
+                animation.duration = AnimationConstants.animationDuration
+                chartLayer.add(animation, forKey: "animatePath")
+            }
+            chartLayer.path = path.cgPath
+            chartLayer.strokeColor = color
+            chartLayer.fillColor = UIColor.clear.cgColor
+            chartLayer.lineWidth = Constants.chartLineWidth
+            chartLayer.lineCap = .round
+            if column.selected {
+                layer.addSublayer(chartLayer)
+            } else if !animated {
+                chartLayer.removeFromSuperlayer()
+            }
+            chartLayers[columnName] = chartLayer
+        }
+    }
+    
+    func drawNavigationViewCharts(animated: Bool) {
+        // Remove unselected charts
+        for columnName in navigationViewChartLayers.keys {
+            if let column = chart.columns[columnName], !column.selected {
+                navigationViewChartLayers[columnName]?.removeFromSuperlayer()
+                navigationViewChartLayers[columnName] = nil
+            }
+        }
+        for columnName in chart.columnNames {
+            guard let column = chart.columns[columnName], column.selected else {
+                continue
+            }
+            // Get config and values
+            let xValues = chart.columns["x"]!.values
+            let yValues = chart.columns[columnName]!.values
+            let color = chart.colors[columnName]!.cgColor
+            // Create path
+            let path = UIBezierPath()
+            for i in 0 ..< yValues.count {
+                let x = CGFloat(xValues[i])
+                let translatedX = ((x - maxMinX.min) / maxMinX.diff) * (frame.width - (Constants.chartLineWidth * 2)) + Constants.chartLineWidth
+                let y = CGFloat(yValues[i])
+                let translatedY = frame.height - Constants.chartLineWidth - (((y - maxMinY.min) / maxMinY.diff) * (Constants.navigationViewHeight - (Constants.chartLineWidth * 2)))
                 let coordinate = CGPoint(x: translatedX, y: translatedY)
                 if (i == 0) {
                     path.move(to: coordinate)
@@ -223,53 +310,74 @@ class ChartView: UIView {
                 }
             }
             // Draw line
-            let chartLayer = CAShapeLayer()
+            let exists = navigationViewChartLayers[columnName] != nil
+            let chartLayer = navigationViewChartLayers[columnName] ?? CAShapeLayer()
+            if exists && animated {
+                let animation = CABasicAnimation(keyPath: "path")
+                animation.fromValue = chartLayer.path
+                animation.toValue = path.cgPath
+                animation.duration = 0.1
+                chartLayer.add(animation, forKey: "animatePath")
+            }
             chartLayer.path = path.cgPath
             chartLayer.strokeColor = color
             chartLayer.fillColor = UIColor.clear.cgColor
-            chartLayer.lineWidth = strokeWidth
+            chartLayer.lineWidth = Constants.chartLineWidth
             chartLayer.lineCap = .round
             layer.addSublayer(chartLayer)
+            navigationViewChartLayers[columnName] = chartLayer
         }
+    }
+    
+    func drawNavigationView() {
+        // Clean up
+        for layer in navigationViewRestLayers {
+            layer.removeFromSuperlayer()
+        }
+        navigationViewRestLayers = []
         // Draw left shaded view
         let leftShadedViewRect = CGRect(x: 0,
                                         y: frame.height - Constants.navigationViewHeight,
                                         width: frame.width * chart.state.bottom,
                                         height: Constants.navigationViewHeight)
-        let shadedViewColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.03)
-        add(rect: leftShadedViewRect, color: shadedViewColor)
+        let shadedViewColor = colorMode == .day ?
+            UIColor(red: 0, green: 0, blue: 0, alpha: 0.03) :
+            UIColor(red: 0, green: 0, blue: 0, alpha: 0.1)
+        navigationViewRestLayers.append(add(rect: leftShadedViewRect, color: shadedViewColor))
         // Draw right shaded view
         let rightShadedViewRect = CGRect(x: frame.width * chart.state.top,
                                          y: frame.height - Constants.navigationViewHeight,
                                          width: frame.width - (frame.width * chart.state.top),
                                          height: Constants.navigationViewHeight)
-        add(rect: rightShadedViewRect, color: shadedViewColor)
+        navigationViewRestLayers.append(add(rect: rightShadedViewRect, color: shadedViewColor))
         // Draw left arrow view
-        let arrowColor = UIColor(red: 195, green: 206, blue: 217, alpha: 0.8)
+        let arrowColor = colorMode == .day ?
+            UIColor(red: 195, green: 206, blue: 217, alpha: 0.8) :
+            UIColor(red: 46, green: 61, blue: 79, alpha: 0.8)
         leftArrowRect = CGRect(x: frame.width * chart.state.bottom,
                                    y: frame.height - Constants.navigationViewHeight - Constants.arrowLineWidth,
                                    width: Constants.arrowWidth,
                                    height: Constants.navigationViewHeight + (Constants.arrowLineWidth * 2))
-        add(roundedRect: leftArrowRect, color: arrowColor, by: [.bottomLeft, .topLeft])
+        navigationViewRestLayers.append(add(roundedRect: leftArrowRect, color: arrowColor, by: [.bottomLeft, .topLeft]))
         // Draw right arrow view
         rightArrowRect = CGRect(x: frame.width * chart.state.top - Constants.arrowWidth,
                                     y: frame.height - Constants.navigationViewHeight - Constants.arrowLineWidth,
                                     width: Constants.arrowWidth,
                                     height: Constants.navigationViewHeight + (Constants.arrowLineWidth * 2))
-        add(roundedRect: rightArrowRect, color: arrowColor, by: [.bottomRight, .topRight])
+        navigationViewRestLayers.append(add(roundedRect: rightArrowRect, color: arrowColor, by: [.bottomRight, .topRight]))
         // Draw bottom arrow view
         let arrowViewWidth = rightArrowRect.minX - (leftArrowRect.minX + leftArrowRect.width)
         let bottomArrowRect = CGRect(x: frame.width * chart.state.bottom + Constants.arrowWidth,
                                      y: frame.height - Constants.navigationViewHeight - Constants.arrowLineWidth,
                                      width: arrowViewWidth,
                                      height: Constants.arrowLineWidth)
-        add(rect: bottomArrowRect, color: arrowColor)
+        navigationViewRestLayers.append(add(rect: bottomArrowRect, color: arrowColor))
         // Draw top arrow view
         let topArrowRect = CGRect(x: frame.width * chart.state.bottom + Constants.arrowWidth,
                                   y: frame.height,
                                   width: arrowViewWidth,
                                   height: Constants.arrowLineWidth)
-        add(rect: topArrowRect, color: arrowColor)
+        navigationViewRestLayers.append(add(rect: topArrowRect, color: arrowColor))
         // Draw left arrow
         let leftArrowPath = UIBezierPath()
         leftArrowPath.move(to: CGPoint(x: leftArrowRect.minX + (leftArrowRect.width / 2) + (Constants.arrowImageWidth / 2),
@@ -285,6 +393,7 @@ class ChartView: UIView {
         leftArrowLayer.lineWidth = 2
         leftArrowLayer.lineCap = .round
         layer.addSublayer(leftArrowLayer)
+        navigationViewRestLayers.append(leftArrowLayer)
         // Draw right arrow
         let rightArrowPath = UIBezierPath()
         rightArrowPath.move(to: CGPoint(x: rightArrowRect.minX + (rightArrowRect.width / 2) - (Constants.arrowImageWidth / 2),
@@ -300,13 +409,14 @@ class ChartView: UIView {
         rightArrowLayer.lineWidth = 2
         rightArrowLayer.lineCap = .round
         layer.addSublayer(rightArrowLayer)
+        navigationViewRestLayers.append(rightArrowLayer)
     }
     
     // MARK: - Extra Functions -
     
     func addPanGR() {
         panGR = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
-        panGR.delaysTouchesBegan = false
+        panGR.delegate = self
         addGestureRecognizer(panGR)
     }
     
@@ -358,5 +468,11 @@ class ChartView: UIView {
         } else {
             pannedView = nil
         }
+    }
+}
+
+extension ChartView: UIGestureRecognizerDelegate {
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return pannedView == nil
     }
 }

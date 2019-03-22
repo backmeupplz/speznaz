@@ -8,6 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		B36E625922427B7D00713CBC /* ChartState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B36E625822427B7D00713CBC /* ChartState.swift */; };
+		B36E625B2244962F00713CBC /* ToDo.swift in Sources */ = {isa = PBXBuildFile; fileRef = B36E625A2244962F00713CBC /* ToDo.swift */; };
+		B36E625D2244A0F100713CBC /* MaxMin.swift in Sources */ = {isa = PBXBuildFile; fileRef = B36E625C2244A0F100713CBC /* MaxMin.swift */; };
+		B36E625F22451B5600713CBC /* LayerRemover.swift in Sources */ = {isa = PBXBuildFile; fileRef = B36E625E22451B5600713CBC /* LayerRemover.swift */; };
+		B36E626122451D8E00713CBC /* CALayer+Animations.swift in Sources */ = {isa = PBXBuildFile; fileRef = B36E626022451D8E00713CBC /* CALayer+Animations.swift */; };
+		B36E62652245240D00713CBC /* UIView+Add.swift in Sources */ = {isa = PBXBuildFile; fileRef = B36E62642245240D00713CBC /* UIView+Add.swift */; };
+		B36E62672245244600713CBC /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = B36E62662245244600713CBC /* Constants.swift */; };
 		B3C5ABAF223D758600303645 /* DecodingError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3C5ABAE223D758600303645 /* DecodingError.swift */; };
 		B3C5ABB1223D759A00303645 /* LineType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3C5ABB0223D759A00303645 /* LineType.swift */; };
 		B3C5ABB3223D75B900303645 /* ColumnValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3C5ABB2223D75B900303645 /* ColumnValue.swift */; };
@@ -35,6 +41,12 @@
 
 /* Begin PBXFileReference section */
 		B36E625822427B7D00713CBC /* ChartState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartState.swift; sourceTree = "<group>"; };
+		B36E625A2244962F00713CBC /* ToDo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToDo.swift; sourceTree = "<group>"; };
+		B36E625C2244A0F100713CBC /* MaxMin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaxMin.swift; sourceTree = "<group>"; };
+		B36E625E22451B5600713CBC /* LayerRemover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerRemover.swift; sourceTree = "<group>"; };
+		B36E626022451D8E00713CBC /* CALayer+Animations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CALayer+Animations.swift"; sourceTree = "<group>"; };
+		B36E62642245240D00713CBC /* UIView+Add.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Add.swift"; sourceTree = "<group>"; };
+		B36E62662245244600713CBC /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		B3C5ABAE223D758600303645 /* DecodingError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecodingError.swift; sourceTree = "<group>"; };
 		B3C5ABB0223D759A00303645 /* LineType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineType.swift; sourceTree = "<group>"; };
 		B3C5ABB2223D75B900303645 /* ColumnValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColumnValue.swift; sourceTree = "<group>"; };
@@ -110,6 +122,7 @@
 		B3DAD098223B496700F3F3FA = {
 			isa = PBXGroup;
 			children = (
+				B36E625A2244962F00713CBC /* ToDo.swift */,
 				B3DAD0A3223B496700F3F3FA /* SpeznazDemo */,
 				B3DAD0A2223B496700F3F3FA /* Products */,
 			);
@@ -164,6 +177,8 @@
 				B3DAD0A4223B496700F3F3FA /* AppDelegate.swift */,
 				B3DAD0BB223B4C8800F3F3FA /* Colors.swift */,
 				B3DAD0C1223B50C300F3F3FA /* Storage.swift */,
+				B36E625E22451B5600713CBC /* LayerRemover.swift */,
+				B36E62662245244600713CBC /* Constants.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -196,6 +211,7 @@
 				B3C5ABB2223D75B900303645 /* ColumnValue.swift */,
 				B3C5ABC2223DA1D500303645 /* Column.swift */,
 				B36E625822427B7D00713CBC /* ChartState.swift */,
+				B36E625C2244A0F100713CBC /* MaxMin.swift */,
 			);
 			path = "Data Models";
 			sourceTree = "<group>";
@@ -205,6 +221,8 @@
 			children = (
 				B3DAD0D5223D6CB400F3F3FA /* UIColor+EasyInit.swift */,
 				B3DAD0D7223D6CE800F3F3FA /* UIColor+Hex.swift */,
+				B36E626022451D8E00713CBC /* CALayer+Animations.swift */,
+				B36E62642245240D00713CBC /* UIView+Add.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -283,10 +301,12 @@
 			files = (
 				B3C5ABBB223D8CB800303645 /* RoundedSquare.swift in Sources */,
 				B3DAD0CF223BEC7600F3F3FA /* Chart.swift in Sources */,
+				B36E626122451D8E00713CBC /* CALayer+Animations.swift in Sources */,
 				B3DAD0CC223BE58900F3F3FA /* InputData.swift in Sources */,
 				B3C5ABC3223DA1D500303645 /* Column.swift in Sources */,
 				B3DAD0C8223B6AF900F3F3FA /* NavigationVC.swift in Sources */,
 				B3C5ABB3223D75B900303645 /* ColumnValue.swift in Sources */,
+				B36E62672245244600713CBC /* Constants.swift in Sources */,
 				B3C5ABC1223D9B1300303645 /* ChartView.swift in Sources */,
 				B3C5ABB1223D759A00303645 /* LineType.swift in Sources */,
 				B3DAD0C2223B50C300F3F3FA /* Storage.swift in Sources */,
@@ -296,11 +316,15 @@
 				B3DAD0D6223D6CB400F3F3FA /* UIColor+EasyInit.swift in Sources */,
 				B3DAD0A5223B496700F3F3FA /* AppDelegate.swift in Sources */,
 				B36E625922427B7D00713CBC /* ChartState.swift in Sources */,
+				B36E625B2244962F00713CBC /* ToDo.swift in Sources */,
+				B36E625F22451B5600713CBC /* LayerRemover.swift in Sources */,
 				B3C5ABBD223D9A2B00303645 /* ChartCell.swift in Sources */,
 				B3DAD0D8223D6CE800F3F3FA /* UIColor+Hex.swift in Sources */,
 				B3C5ABAF223D758600303645 /* DecodingError.swift in Sources */,
+				B36E625D2244A0F100713CBC /* MaxMin.swift in Sources */,
 				B3C5ABB9223D870000303645 /* ColumnCell.swift in Sources */,
 				B3C5ABB5223D831800303645 /* StatisticsDataSource.swift in Sources */,
+				B36E62652245240D00713CBC /* UIView+Add.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

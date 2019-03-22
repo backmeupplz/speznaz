@@ -56,6 +56,17 @@ extension StatisticsDataSource: UITableViewDataSource {
             return
         }
         let chart = data.charts[indexPath.section]
+        
+        // Check that more than one selected
+        let selectedCount = chart.columnNames
+            .map { chart.columns[$0]! }
+            .filter { $0.selected }
+            .count
+        if (selectedCount < 2) {
+            tableView.selectRow(at: indexPath, animated: false, scrollPosition: .none)
+            return
+        }
+        
         let columnName = chart.columnNames[indexPath.row - 1]
         guard let cell = tableView.cellForRow(at: indexPath), let column = chart.columns[columnName] else {
             return
@@ -125,7 +136,7 @@ extension StatisticsDataSource: UITableViewDataSource {
         guard let chartCell = tableView.cellForRow(at: IndexPath(row: 0, section: section)) as? ChartCell else {
             return
         }
-        chartCell.chartView.updateData()
+        chartCell.chartView.updateData(animated: true)
     }
 }
 

@@ -51,7 +51,6 @@ class InputData {
             charts = try JSONDecoder().decode([Chart].self, from: data)
         } catch (let err) {
             print(err)
-            
         }
         if let unwrappedCharts = try? JSONDecoder().decode([Chart].self, from: data) {
             charts = unwrappedCharts
