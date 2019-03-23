@@ -9,7 +9,7 @@
 import UIKit
 
 struct AnimationConstants {
-    static let animationDuration: CFTimeInterval = 0.2
+    static let animationDuration: CFTimeInterval = 0.4
     static let animationMoveDistance: CGFloat = 30
 }
 
@@ -25,12 +25,12 @@ extension CALayer {
         add(fadeAnimation, forKey: "fadeOut")
         // Move
         let moveAnimation = CABasicAnimation(keyPath: "position")
-        let newPosition = CGPoint(x: position.x, y: up ? position.y + AnimationConstants.animationMoveDistance : position.y - AnimationConstants.animationMoveDistance)
+        let shouldGoUp = movesIn ? up : !up
+        let newPosition = CGPoint(x: position.x, y: shouldGoUp ? position.y + AnimationConstants.animationMoveDistance : position.y - AnimationConstants.animationMoveDistance)
         moveAnimation.fromValue = movesIn ? newPosition : position
         moveAnimation.toValue = movesIn ? position : newPosition
         moveAnimation.duration = AnimationConstants.animationDuration
         moveAnimation.isRemovedOnCompletion = true
-        moveAnimation.autoreverses = false
         // Remove on completion
         moveAnimation.delegate = LayerAnimationDelegate(for: self, removeOnCompletion: removeOnCompletion)
         add(moveAnimation, forKey: "move")
@@ -43,9 +43,9 @@ extension CALayer {
         fadeAnimation.toValue = fadeIn ? 1 : 0
         fadeAnimation.duration = AnimationConstants.animationDuration
         fadeAnimation.isRemovedOnCompletion = true
-        fadeAnimation.autoreverses = false
         // Remove on completion
         fadeAnimation.delegate = LayerAnimationDelegate(for: self, removeOnCompletion: removeOnCompletion)
+        opacity = fadeIn ? 1 : 0
         add(fadeAnimation, forKey: "fade")
     }
 }

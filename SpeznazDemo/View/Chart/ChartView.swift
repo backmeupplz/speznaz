@@ -12,6 +12,7 @@ enum PannedView: Int {
     case leftArrow
     case rightArrow
     case navigationView
+    case chartView
 }
 
 class ChartView: UIView {
@@ -32,14 +33,19 @@ class ChartView: UIView {
     var maxMinX = MaxMin(0, 0)
     var yWentUp = true
     var yChanged = false
+    var chartWidth = CGFloat(0)
     
     var panGR: UIPanGestureRecognizer!
     
     var pannedView: PannedView?
     var pannedState: ChartState!
     
+    var chartScrollLayer: CAScrollLayer!
+    var chartScrollContentLayer: CALayer!
+    
     var leftArrowRect: CGRect!
     var rightArrowRect: CGRect!
+    var scrollRect: CGRect!
     
     var colorMode: ColorMode!
     
@@ -66,6 +72,7 @@ class ChartView: UIView {
     public func updateData(animated: Bool = true) {
         if !animated {
             layer.sublayers?.forEach { $0.removeFromSuperlayer() }
+            chartScrollContentLayer?.sublayers?.forEach { $0.removeFromSuperlayer() }
         }
         colorMode = Colors.mode
         compute()
@@ -107,6 +114,8 @@ class ChartView: UIView {
         // Calculate dimensions
         chartHeight = frame.height - Constants.navigationViewHeight - Constants.labelHeight
         segmentHeight = (chartHeight - Constants.labelHeight) / 5.0
+        // Calculate chart properties
+        chartWidth = frame.width / chart.state.diff
     }
     
     // MARK: - Rendering -
@@ -186,6 +195,32 @@ class ChartView: UIView {
     }
     
     func drawCharts(animated: Bool) {
+        // Add scroll layer
+        let scrollLayer = chartScrollLayer ?? CAScrollLayer()
+        chartScrollLayer = scrollLayer
+        let contentLayer = chartScrollContentLayer ?? CALayer()
+        if chartScrollContentLayer == nil {
+            chartScrollLayer.addSublayer(contentLayer)
+        }
+        chartScrollContentLayer = contentLayer
+        
+        scrollRect = CGRect(x: 0,
+                            y: 0,
+                            width: frame.width,
+                            height: chartHeight)
+        scrollLayer.frame = scrollRect
+        contentLayer.frame = CGRect(x: 0,
+                                     y: 0,
+                                     width: chartWidth,
+                                     height: chartHeight)
+        layer.addSublayer(chartScrollLayer)
+        
+        // Scroll
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        scrollLayer.scroll(to: CGPoint(x: chart.state.bottom * chartWidth, y: 0))
+        CATransaction.commit()
+        
         // Draw charts
         var elevatedBottomYValue = maxMinY.min - (maxMinY.diff / 10.0)
         if (elevatedBottomYValue < 0) {
@@ -210,7 +245,7 @@ class ChartView: UIView {
             let path = UIBezierPath()
             for i in 0 ..< yValues.count {
                 let x = CGFloat(xValues[i])
-                let translatedX = ((x - maxMinX.min) / maxMinX.diff) * frame.width
+                let translatedX = ((x - maxMinX.min) / maxMinX.diff) * chartWidth
                 let y = CGFloat(yValues[i])
                 let translatedY = chartHeight - (((y - elevatedBottomYValue) / (maxMinY.max - elevatedBottomYValue)) * chartHeight)
                 let coordinate = CGPoint(x: translatedX, y: translatedY)
@@ -228,7 +263,7 @@ class ChartView: UIView {
                 }
                 for i in 0 ..< yValues.count {
                     let x = CGFloat(xValues[i])
-                    let translatedX = ((x - maxMinX.min) / maxMinX.diff) * frame.width
+                    let translatedX = ((x - maxMinX.min) / maxMinX.diff) * chartWidth
                     let y = CGFloat(yValues[i])
                     let translatedY = chartHeight - (((y - oldElevatedBottomYValue) / (oldMaxMinY.max - oldElevatedBottomYValue)) * chartHeight)
                     let coordinate = CGPoint(x: translatedX, y: translatedY)
@@ -273,7 +308,7 @@ class ChartView: UIView {
             chartLayer.lineWidth = Constants.chartLineWidth
             chartLayer.lineCap = .round
             if column.selected {
-                layer.addSublayer(chartLayer)
+                contentLayer.addSublayer(chartLayer)
             } else if !animated {
                 chartLayer.removeFromSuperlayer()
             }
@@ -466,6 +501,8 @@ class ChartView: UIView {
                 pannedView = .rightArrow
             } else if (navigationViewScrollableRect.contains(location)) {
                 pannedView = .navigationView
+            } else if (scrollRect.contains(location)) {
+                pannedView = .chartView
             }
             pannedState = ChartState(chart.state.bottom, chart.state.top)
         }
@@ -496,6 +533,16 @@ class ChartView: UIView {
                 }
                 chart.state.bottom = pannedState.bottom + relativeTranslation
                 chart.state.top = pannedState.top + relativeTranslation
+                updateData()
+            } else if (pannedView == .chartView) {
+                relativeTranslation = translation.x / chartWidth
+                if pannedState.bottom - relativeTranslation < 0 {
+                    relativeTranslation = pannedState.bottom
+                } else if pannedState.top - relativeTranslation > 1 {
+                    relativeTranslation = -1 * (1 - pannedState.top)
+                }
+                chart.state.bottom = pannedState.bottom - relativeTranslation
+                chart.state.top = pannedState.top - relativeTranslation
                 updateData()
             }
         } else {

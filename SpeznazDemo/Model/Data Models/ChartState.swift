@@ -12,6 +12,12 @@ class ChartState {
     var bottom: CGFloat = 0.5
     var top: CGFloat = 1.0
     
+    var diff: CGFloat {
+        get {
+            return top - bottom
+        }
+    }
+    
     convenience init(_ bottom: CGFloat, _ top: CGFloat) {
         self.init()
         
