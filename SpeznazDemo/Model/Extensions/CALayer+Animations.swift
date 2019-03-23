@@ -9,7 +9,7 @@
 import UIKit
 
 struct AnimationConstants {
-    static let animationDuration: CFTimeInterval = 1
+    static let animationDuration: CFTimeInterval = 0.2
     static let animationMoveDistance: CGFloat = 30
 }
 
@@ -18,35 +18,34 @@ extension CALayer {
         // Fade
         let fadeAnimation = CABasicAnimation(keyPath: "opacity")
         fadeAnimation.fromValue = fadeIn ? 0 : 1
+        fadeAnimation.toValue = fadeIn ? 1 : 0
         fadeAnimation.duration = AnimationConstants.animationDuration
         fadeAnimation.isRemovedOnCompletion = true
+        fadeAnimation.autoreverses = false
         add(fadeAnimation, forKey: "fadeOut")
-        opacity = fadeIn ? 1 : 0
         // Move
         let moveAnimation = CABasicAnimation(keyPath: "position")
         let newPosition = CGPoint(x: position.x, y: up ? position.y + AnimationConstants.animationMoveDistance : position.y - AnimationConstants.animationMoveDistance)
         moveAnimation.fromValue = movesIn ? newPosition : position
         moveAnimation.toValue = movesIn ? position : newPosition
         moveAnimation.duration = AnimationConstants.animationDuration
-        add(moveAnimation, forKey: "move")
-        position = newPosition
+        moveAnimation.isRemovedOnCompletion = true
+        moveAnimation.autoreverses = false
         // Remove on completion
-        if removeOnCompletion {
-            moveAnimation.delegate = LayerRemover(for: self)
-        }
+        moveAnimation.delegate = LayerAnimationDelegate(for: self, removeOnCompletion: removeOnCompletion)
+        add(moveAnimation, forKey: "move")
     }
     
     func fade(fadeIn: Bool, removeOnCompletion: Bool) {
         // Fade
         let fadeAnimation = CABasicAnimation(keyPath: "opacity")
         fadeAnimation.fromValue = fadeIn ? 0 : 1
+        fadeAnimation.toValue = fadeIn ? 1 : 0
         fadeAnimation.duration = AnimationConstants.animationDuration
         fadeAnimation.isRemovedOnCompletion = true
-        add(fadeAnimation, forKey: "fadeOut")
-        opacity = fadeIn ? 1 : 0
+        fadeAnimation.autoreverses = false
         // Remove on completion
-        if removeOnCompletion {
-            fadeAnimation.delegate = LayerRemover(for: self)
-        }
+        fadeAnimation.delegate = LayerAnimationDelegate(for: self, removeOnCompletion: removeOnCompletion)
+        add(fadeAnimation, forKey: "fade")
     }
 }

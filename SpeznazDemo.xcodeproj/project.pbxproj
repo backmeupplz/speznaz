@@ -10,7 +10,7 @@
 		B36E625922427B7D00713CBC /* ChartState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B36E625822427B7D00713CBC /* ChartState.swift */; };
 		B36E625B2244962F00713CBC /* ToDo.swift in Sources */ = {isa = PBXBuildFile; fileRef = B36E625A2244962F00713CBC /* ToDo.swift */; };
 		B36E625D2244A0F100713CBC /* MaxMin.swift in Sources */ = {isa = PBXBuildFile; fileRef = B36E625C2244A0F100713CBC /* MaxMin.swift */; };
-		B36E625F22451B5600713CBC /* LayerRemover.swift in Sources */ = {isa = PBXBuildFile; fileRef = B36E625E22451B5600713CBC /* LayerRemover.swift */; };
+		B36E625F22451B5600713CBC /* LayerAnimationDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B36E625E22451B5600713CBC /* LayerAnimationDelegate.swift */; };
 		B36E626122451D8E00713CBC /* CALayer+Animations.swift in Sources */ = {isa = PBXBuildFile; fileRef = B36E626022451D8E00713CBC /* CALayer+Animations.swift */; };
 		B36E62652245240D00713CBC /* UIView+Add.swift in Sources */ = {isa = PBXBuildFile; fileRef = B36E62642245240D00713CBC /* UIView+Add.swift */; };
 		B36E62672245244600713CBC /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = B36E62662245244600713CBC /* Constants.swift */; };
@@ -43,7 +43,7 @@
 		B36E625822427B7D00713CBC /* ChartState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartState.swift; sourceTree = "<group>"; };
 		B36E625A2244962F00713CBC /* ToDo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToDo.swift; sourceTree = "<group>"; };
 		B36E625C2244A0F100713CBC /* MaxMin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaxMin.swift; sourceTree = "<group>"; };
-		B36E625E22451B5600713CBC /* LayerRemover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerRemover.swift; sourceTree = "<group>"; };
+		B36E625E22451B5600713CBC /* LayerAnimationDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerAnimationDelegate.swift; sourceTree = "<group>"; };
 		B36E626022451D8E00713CBC /* CALayer+Animations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CALayer+Animations.swift"; sourceTree = "<group>"; };
 		B36E62642245240D00713CBC /* UIView+Add.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Add.swift"; sourceTree = "<group>"; };
 		B36E62662245244600713CBC /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
@@ -177,7 +177,7 @@
 				B3DAD0A4223B496700F3F3FA /* AppDelegate.swift */,
 				B3DAD0BB223B4C8800F3F3FA /* Colors.swift */,
 				B3DAD0C1223B50C300F3F3FA /* Storage.swift */,
-				B36E625E22451B5600713CBC /* LayerRemover.swift */,
+				B36E625E22451B5600713CBC /* LayerAnimationDelegate.swift */,
 				B36E62662245244600713CBC /* Constants.swift */,
 			);
 			path = Model;
@@ -317,7 +317,7 @@
 				B3DAD0A5223B496700F3F3FA /* AppDelegate.swift in Sources */,
 				B36E625922427B7D00713CBC /* ChartState.swift in Sources */,
 				B36E625B2244962F00713CBC /* ToDo.swift in Sources */,
-				B36E625F22451B5600713CBC /* LayerRemover.swift in Sources */,
+				B36E625F22451B5600713CBC /* LayerAnimationDelegate.swift in Sources */,
 				B3C5ABBD223D9A2B00303645 /* ChartCell.swift in Sources */,
 				B3DAD0D8223D6CE800F3F3FA /* UIColor+Hex.swift in Sources */,
 				B3C5ABAF223D758600303645 /* DecodingError.swift in Sources */,

@@ -25,6 +25,7 @@ class ChartView: UIView {
         }
     }
     var selectedColumnsNames = [String]()
+    var selectedNavigationColumnsNames = [String]()
     
     var oldMaxMinY = MaxMin(0, 0)
     var maxMinY = MaxMin(0, 0)
@@ -63,6 +64,9 @@ class ChartView: UIView {
     // MARK: - Public Functions -
     
     public func updateData(animated: Bool = true) {
+        if !animated {
+            layer.sublayers?.forEach { $0.removeFromSuperlayer() }
+        }
         colorMode = Colors.mode
         compute()
         render(animated: animated)
@@ -111,7 +115,7 @@ class ChartView: UIView {
         drawGrid(animated: animated)
         drawCharts(animated: animated)
         drawGridTitles(animated: animated)
-//        drawNavigationViewCharts(animated: animated)
+        drawNavigationViewCharts(animated: animated)
         drawNavigationView()
     }
     
@@ -165,11 +169,9 @@ class ChartView: UIView {
         for i in 0 ..< 7 {
             let cgI = CGFloat(i)
             let y = chartHeight - (cgI * segmentHeight) - Constants.labelHeight
-            let minimal = chartHeight * maxMinY.diff + maxMinY.min
-            let current = floor(chartHeight - (y + Constants.labelHeight))
-            let flooredResult = floor(current / minimal)
-            let roundedResult = Int(flooredResult)
-            let text = "\(roundedResult)"
+            let result = floor(chartHeight - (y + Constants.labelHeight)) / chartHeight * maxMinY.diff + maxMinY.min
+            let flooredResult = floor(result)
+            let text = "\(Int(flooredResult))"
             let label = addLabel(text: text, at: CGPoint(x: 0, y: y), color: colorMode == .day ?
                 UIColor(red: 168, green: 173, blue: 180) :
                 UIColor(red: 76, green: 91, blue: 107))
@@ -245,24 +247,24 @@ class ChartView: UIView {
                 animation.fromValue = chartLayer.path
                 animation.toValue = path.cgPath
                 animation.duration = AnimationConstants.animationDuration
+                animation.isRemovedOnCompletion = true
                 chartLayer.add(animation, forKey: "animatePath")
             } else if animated && !wasSelected && column.selected {
-                chartLayer.opacity = 0
-                chartLayer.path = oldPath.cgPath
                 chartLayer.fade(fadeIn: true, removeOnCompletion: false)
+                chartLayer.path = oldPath.cgPath
                 let animation = CABasicAnimation(keyPath: "path")
                 animation.fromValue = chartLayer.path
                 animation.toValue = path.cgPath
                 animation.duration = AnimationConstants.animationDuration
+                animation.isRemovedOnCompletion = true
                 chartLayer.add(animation, forKey: "animatePath")
             } else if animated && wasSelected && !column.selected {
-                chartLayer.opacity = 1
-                chartLayer.path = oldPath.cgPath
                 chartLayer.fade(fadeIn: false, removeOnCompletion: true)
                 let animation = CABasicAnimation(keyPath: "path")
                 animation.fromValue = chartLayer.path
                 animation.toValue = path.cgPath
                 animation.duration = AnimationConstants.animationDuration
+                animation.isRemovedOnCompletion = true
                 chartLayer.add(animation, forKey: "animatePath")
             }
             chartLayer.path = path.cgPath
@@ -288,8 +290,15 @@ class ChartView: UIView {
             }
         }
         for columnName in chart.columnNames {
-            guard let column = chart.columns[columnName], column.selected else {
+            guard let column = chart.columns[columnName] else {
                 continue
+            }
+            // Modify selection
+            let wasSelected = selectedNavigationColumnsNames.contains(columnName)
+            if wasSelected && !column.selected {
+                selectedNavigationColumnsNames = selectedNavigationColumnsNames.filter { $0 != columnName }
+            } else if !wasSelected && column.selected {
+                selectedNavigationColumnsNames.append(columnName)
             }
             // Get config and values
             let xValues = chart.columns["x"]!.values
@@ -309,22 +318,46 @@ class ChartView: UIView {
                     path.addLine(to: coordinate)
                 }
             }
+            let oldPath = UIBezierPath()
+            if !wasSelected {
+                for i in 0 ..< yValues.count {
+                    let x = CGFloat(xValues[i])
+                    let translatedX = ((x - maxMinX.min) / maxMinX.diff) * (frame.width - (Constants.chartLineWidth * 2)) + Constants.chartLineWidth
+                    let y = CGFloat(yValues[i])
+                    let translatedY = frame.height - Constants.chartLineWidth - (((y - oldMaxMinY.min) / oldMaxMinY.diff) * (Constants.navigationViewHeight - (Constants.chartLineWidth * 2)))
+                    let coordinate = CGPoint(x: translatedX, y: translatedY)
+                    if (i == 0) {
+                        oldPath.move(to: coordinate)
+                    } else {
+                        oldPath.addLine(to: coordinate)
+                    }
+                }
+            }
             // Draw line
-            let exists = navigationViewChartLayers[columnName] != nil
             let chartLayer = navigationViewChartLayers[columnName] ?? CAShapeLayer()
-            if exists && animated {
+            
+            if animated && wasSelected && column.selected {
                 let animation = CABasicAnimation(keyPath: "path")
                 animation.fromValue = chartLayer.path
                 animation.toValue = path.cgPath
-                animation.duration = 0.1
+                animation.duration = AnimationConstants.animationDuration
+                animation.isRemovedOnCompletion = true
                 chartLayer.add(animation, forKey: "animatePath")
+            } else if animated && !wasSelected && column.selected {
+                chartLayer.fade(fadeIn: true, removeOnCompletion: false)
+            } else if animated && wasSelected && !column.selected {
+                chartLayer.fade(fadeIn: false, removeOnCompletion: true)
             }
             chartLayer.path = path.cgPath
             chartLayer.strokeColor = color
             chartLayer.fillColor = UIColor.clear.cgColor
             chartLayer.lineWidth = Constants.chartLineWidth
             chartLayer.lineCap = .round
-            layer.addSublayer(chartLayer)
+            if column.selected {
+                layer.addSublayer(chartLayer)
+            } else if !animated {
+                chartLayer.removeFromSuperlayer()
+            }
             navigationViewChartLayers[columnName] = chartLayer
         }
     }
