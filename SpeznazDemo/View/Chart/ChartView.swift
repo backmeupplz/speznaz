@@ -47,6 +47,8 @@ class ChartView: UIView {
     var chartScrollLayer: CAScrollLayer!
     var chartScrollContentLayer: CALayer!
     
+    var navigationChartLayer: CALayer!
+    
     var leftArrowRect: CGRect!
     var rightArrowRect: CGRect!
     var scrollRect: CGRect!
@@ -140,7 +142,7 @@ class ChartView: UIView {
         yWentUp = localOldMaxMinY.diff > localMaxMinY.diff
         yChanged = localOldMaxMinY.diff != localMaxMinY.diff
         // Calculate dimensions
-        chartHeight = frame.height - Constants.navigationViewHeight - Constants.labelHeight
+        chartHeight = frame.height - Constants.navigationViewHeight - (Constants.labelHeight * 2)
         segmentHeight = (chartHeight - Constants.labelHeight) / 5.0
         // Calculate chart properties
         chartWidth = frame.width / chart.state.diff
@@ -284,7 +286,7 @@ class ChartView: UIView {
                 }
             }
             let oldPath = UIBezierPath()
-            if !wasSelected {
+            if !wasSelected && localOldMaxMinY.diff > 0 {
                 var oldElevatedBottomYValue = localOldMaxMinY.min - (localOldMaxMinY.diff / 10.0)
                 if (oldElevatedBottomYValue < 0) {
                     oldElevatedBottomYValue = 0.0
@@ -345,6 +347,18 @@ class ChartView: UIView {
     }
     
     func drawNavigationViewCharts(animated: Bool) {
+        // Create navigation view layer
+        let contentLayer = navigationChartLayer ?? CALayer()
+        if navigationChartLayer == nil {
+            layer.addSublayer(contentLayer)
+        }
+        navigationChartLayer = contentLayer
+        contentLayer.frame = CGRect(x: 0,
+                                    y: frame.height - Constants.navigationViewHeight,
+                                    width: frame.width,
+                                    height: Constants.navigationViewHeight)
+        contentLayer.bounds = CGRect(x: 0, y: 0, width: contentLayer.frame.width, height: contentLayer.frame.height)
+        contentLayer.masksToBounds = true
         // Remove unselected charts
         for columnName in navigationViewChartLayers.keys {
             if let column = chart.columns[columnName], !column.selected {
@@ -373,7 +387,7 @@ class ChartView: UIView {
                 let x = CGFloat(xValues[i])
                 let translatedX = ((x - maxMinX.min) / maxMinX.diff) * (frame.width - (Constants.chartLineWidth * 2)) + Constants.chartLineWidth
                 let y = CGFloat(yValues[i])
-                let translatedY = frame.height - Constants.chartLineWidth - (((y - maxMinY.min) / maxMinY.diff) * (Constants.navigationViewHeight - (Constants.chartLineWidth * 2)))
+                let translatedY = Constants.navigationViewHeight - Constants.chartLineWidth - (((y - maxMinY.min) / maxMinY.diff) * (Constants.navigationViewHeight - (Constants.chartLineWidth * 2)))
                 let coordinate = CGPoint(x: translatedX, y: translatedY)
                 if (i == 0) {
                     path.move(to: coordinate)
@@ -382,12 +396,12 @@ class ChartView: UIView {
                 }
             }
             let oldPath = UIBezierPath()
-            if !wasSelected {
+            if !wasSelected && oldMaxMinY.diff > 0 {
                 for i in 0 ..< yValues.count {
                     let x = CGFloat(xValues[i])
                     let translatedX = ((x - maxMinX.min) / maxMinX.diff) * (frame.width - (Constants.chartLineWidth * 2)) + Constants.chartLineWidth
                     let y = CGFloat(yValues[i])
-                    let translatedY = frame.height - Constants.chartLineWidth - (((y - oldMaxMinY.min) / oldMaxMinY.diff) * (Constants.navigationViewHeight - (Constants.chartLineWidth * 2)))
+                    let translatedY = Constants.navigationViewHeight - Constants.chartLineWidth - (((y - oldMaxMinY.min) / oldMaxMinY.diff) * (Constants.navigationViewHeight - (Constants.chartLineWidth * 2)))
                     let coordinate = CGPoint(x: translatedX, y: translatedY)
                     if (i == 0) {
                         oldPath.move(to: coordinate)
@@ -417,7 +431,7 @@ class ChartView: UIView {
             chartLayer.lineWidth = Constants.chartLineWidth
             chartLayer.lineCap = .round
             if column.selected {
-                layer.addSublayer(chartLayer)
+                contentLayer.addSublayer(chartLayer)
             } else if !animated {
                 chartLayer.removeFromSuperlayer()
             }
