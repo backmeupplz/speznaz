@@ -8,11 +8,12 @@
 
 import Foundation
 
-// + Chart scroll view
 // - Selection bubble (draggable)
-// - Time labels (+ animation)
-// - compute — get Y valeus only on the screen
 
+// - Time labels (+ animation)
+
+// + compute — get Y values only on the screen
+// + Chart scroll view
 // + Chart selection animation
 // + Range selection animation
 // + Range scrolling animation

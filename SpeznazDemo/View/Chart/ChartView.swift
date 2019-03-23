@@ -28,11 +28,15 @@ class ChartView: UIView {
     var selectedColumnsNames = [String]()
     var selectedNavigationColumnsNames = [String]()
     
+    var localOldMaxMinY = MaxMin(0, 0)
+    var localMaxMinY = MaxMin(0, 0)
+    
     var oldMaxMinY = MaxMin(0, 0)
     var maxMinY = MaxMin(0, 0)
     var maxMinX = MaxMin(0, 0)
     var yWentUp = true
     var yChanged = false
+    
     var chartWidth = CGFloat(0)
     
     var panGR: UIPanGestureRecognizer!
@@ -101,16 +105,40 @@ class ChartView: UIView {
                 tempBottomValue = value
             }
         }
+        // Get local values
+        var localAllValues = Set<Int>()
+        for columnName in chart.columnNames {
+            guard let column = chart.columns[columnName], column.selected else {
+                continue
+            }
+            let topIndex = CGFloat(column.values.count - 1)
+            let startIndex = Int(floor(topIndex * chart.state.bottom))
+            let endIndex = Int(ceil(topIndex * chart.state.top))
+            localAllValues = localAllValues.union(column.values[startIndex...endIndex])
+        }
+        // Get top value
+        var tempLocalTopValue = 0;
+        var tempLocalBottomValue = allValues.first!
+        for value in localAllValues {
+            if value > tempLocalTopValue {
+                tempLocalTopValue = value
+            }
+            if value < tempLocalBottomValue {
+                tempLocalBottomValue = value
+            }
+        }
         // Save value for later
         oldMaxMinY = maxMinY
+        localOldMaxMinY = localMaxMinY
         // Setup Y
         maxMinY = MaxMin(CGFloat(tempTopValue), CGFloat(tempBottomValue))
+        localMaxMinY = MaxMin(CGFloat(tempLocalTopValue), CGFloat(tempLocalBottomValue))
         // Setup X
         maxMinX = MaxMin(CGFloat(chart.columns["x"]!.values.last!),
                          CGFloat(chart.columns["x"]!.values.first!))
         // Calculate if y went up
-        yWentUp = oldMaxMinY.diff > maxMinY.diff
-        yChanged = oldMaxMinY.diff != maxMinY.diff
+        yWentUp = localOldMaxMinY.diff > localMaxMinY.diff
+        yChanged = localOldMaxMinY.diff != localMaxMinY.diff
         // Calculate dimensions
         chartHeight = frame.height - Constants.navigationViewHeight - Constants.labelHeight
         segmentHeight = (chartHeight - Constants.labelHeight) / 5.0
@@ -178,7 +206,7 @@ class ChartView: UIView {
         for i in 0 ..< 7 {
             let cgI = CGFloat(i)
             let y = chartHeight - (cgI * segmentHeight) - Constants.labelHeight
-            let result = floor(chartHeight - (y + Constants.labelHeight)) / chartHeight * maxMinY.diff + maxMinY.min
+            let result = floor(chartHeight - (y + Constants.labelHeight)) / chartHeight * localMaxMinY.diff + localMaxMinY.min
             let flooredResult = floor(result)
             let text = "\(Int(flooredResult))"
             let label = addLabel(text: text, at: CGPoint(x: 0, y: y), color: colorMode == .day ?
@@ -222,7 +250,7 @@ class ChartView: UIView {
         CATransaction.commit()
         
         // Draw charts
-        var elevatedBottomYValue = maxMinY.min - (maxMinY.diff / 10.0)
+        var elevatedBottomYValue = localMaxMinY.min - (localMaxMinY.diff / 10.0)
         if (elevatedBottomYValue < 0) {
             elevatedBottomYValue = 0.0
         }
@@ -247,7 +275,7 @@ class ChartView: UIView {
                 let x = CGFloat(xValues[i])
                 let translatedX = ((x - maxMinX.min) / maxMinX.diff) * chartWidth
                 let y = CGFloat(yValues[i])
-                let translatedY = chartHeight - (((y - elevatedBottomYValue) / (maxMinY.max - elevatedBottomYValue)) * chartHeight)
+                let translatedY = chartHeight - (((y - elevatedBottomYValue) / (localMaxMinY.max - elevatedBottomYValue)) * chartHeight)
                 let coordinate = CGPoint(x: translatedX, y: translatedY)
                 if (i == 0) {
                     path.move(to: coordinate)
@@ -257,7 +285,7 @@ class ChartView: UIView {
             }
             let oldPath = UIBezierPath()
             if !wasSelected {
-                var oldElevatedBottomYValue = oldMaxMinY.min - (oldMaxMinY.diff / 10.0)
+                var oldElevatedBottomYValue = localOldMaxMinY.min - (localOldMaxMinY.diff / 10.0)
                 if (oldElevatedBottomYValue < 0) {
                     oldElevatedBottomYValue = 0.0
                 }
@@ -265,7 +293,7 @@ class ChartView: UIView {
                     let x = CGFloat(xValues[i])
                     let translatedX = ((x - maxMinX.min) / maxMinX.diff) * chartWidth
                     let y = CGFloat(yValues[i])
-                    let translatedY = chartHeight - (((y - oldElevatedBottomYValue) / (oldMaxMinY.max - oldElevatedBottomYValue)) * chartHeight)
+                    let translatedY = chartHeight - (((y - oldElevatedBottomYValue) / (localOldMaxMinY.max - oldElevatedBottomYValue)) * chartHeight)
                     let coordinate = CGPoint(x: translatedX, y: translatedY)
                     if (i == 0) {
                         oldPath.move(to: coordinate)
