@@ -45,6 +45,7 @@ class ChartView: UIView {
     
     var panGR: UIPanGestureRecognizer!
     var tapGR: UITapGestureRecognizer!
+    var pinchGR: UIPinchGestureRecognizer!
     
     var pannedView: PannedView?
     var pannedState: ChartState!
@@ -87,6 +88,7 @@ class ChartView: UIView {
         yearFormatter.dateFormat = "yyyy"
         addPanGR()
         addTapGR()
+        addPinchGR()
     }
     
     // MARK: - Public Functions -
@@ -822,6 +824,37 @@ class ChartView: UIView {
             let indexOfX = Int(floor(CGFloat(xValues.count - 1) * progress))
             chart.state.selectedIndex = indexOfX >= xValues.count ? xValues.count - 1 : indexOfX
             updateData()
+        }
+    }
+    
+    func addPinchGR() {
+        pinchGR = UIPinchGestureRecognizer(target: self, action: #selector(handlePinch(_:)))
+        pinchGR.delegate = self
+        addGestureRecognizer(pinchGR)
+    }
+    
+    @objc func handlePinch(_ gr: UIPinchGestureRecognizer) {
+        if gr.state == .began {
+            pannedState = ChartState(chart.state.bottom, chart.state.top, chart.state.selectedIndex)
+        }
+        
+        if gr.state == .began || gr.state == .changed {
+            let curDiff = pannedState.diff
+            var newDiff = curDiff * gr.scale
+            if newDiff < Constants.minDiffInBottomAndTop {
+                newDiff = Constants.minDiffInBottomAndTop
+            }
+            chart.state.bottom = pannedState.bottom - ((newDiff - curDiff) / 2)
+            if chart.state.bottom < 0 {
+                chart.state.bottom = 0
+            }
+            chart.state.top = pannedState.top + ((newDiff - curDiff) / 2)
+            if chart.state.top > 1 {
+                chart.state.top = 1
+            }
+            updateData()
+        } else {
+            pannedState = nil
         }
     }
 }
