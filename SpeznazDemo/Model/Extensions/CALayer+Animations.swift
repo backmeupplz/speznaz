@@ -36,6 +36,31 @@ extension CALayer {
         add(moveAnimation, forKey: "move")
     }
     
+    func move(left: Bool, fadeIn: Bool, removeOnCompletion: Bool, movesIn: Bool) {
+        // Fade
+        let fadeAnimation = CABasicAnimation(keyPath: "opacity")
+        fadeAnimation.fromValue = fadeIn ? 0 : 1
+        fadeAnimation.toValue = fadeIn ? 1 : 0
+        fadeAnimation.duration = AnimationConstants.animationDuration
+        fadeAnimation.isRemovedOnCompletion = true
+        fadeAnimation.autoreverses = false
+        add(fadeAnimation, forKey: "fadeOut")
+        // Move
+        let moveAnimation = CABasicAnimation(keyPath: "position")
+        let shouldGoLeft = movesIn ? left : !left
+        let newPosition = CGPoint(x: shouldGoLeft ?
+            position.x - AnimationConstants.animationMoveDistance :
+            position.x + AnimationConstants.animationMoveDistance,
+                                  y: position.y)
+        moveAnimation.fromValue = movesIn ? newPosition : position
+        moveAnimation.toValue = movesIn ? position : newPosition
+        moveAnimation.duration = AnimationConstants.animationDuration
+        moveAnimation.isRemovedOnCompletion = true
+        // Remove on completion
+        moveAnimation.delegate = LayerAnimationDelegate(for: self, removeOnCompletion: removeOnCompletion)
+        add(moveAnimation, forKey: "move")
+    }
+    
     func fade(fadeIn: Bool, removeOnCompletion: Bool) {
         // Fade
         let fadeAnimation = CABasicAnimation(keyPath: "opacity")

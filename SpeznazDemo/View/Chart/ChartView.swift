@@ -13,6 +13,7 @@ enum PannedView: Int {
     case rightArrow
     case navigationView
     case chartView
+    case bubbleView
 }
 
 class ChartView: UIView {
@@ -36,10 +37,14 @@ class ChartView: UIView {
     var maxMinX = MaxMin(0, 0)
     var yWentUp = true
     var yChanged = false
+    var xWentUp = true
+    var xChanged = false
     
     var chartWidth = CGFloat(0)
+    var oldChartWidth = CGFloat(0)
     
     var panGR: UIPanGestureRecognizer!
+    var tapGR: UITapGestureRecognizer!
     
     var pannedView: PannedView?
     var pannedState: ChartState!
@@ -58,6 +63,7 @@ class ChartView: UIView {
     var chartLayers = [String: CAShapeLayer]()
     var horizontalGridLinesLayers = [CAShapeLayer]()
     var horizontalGridTitlesLayers = [CATextLayer]()
+    var verticalGridTitlesLayers = [CATextLayer]()
     
     var navigationViewChartLayers = [String: CAShapeLayer]()
     var navigationViewRestLayers = [CALayer]()
@@ -65,23 +71,38 @@ class ChartView: UIView {
     var chartHeight: CGFloat!
     var segmentHeight: CGFloat!
     
+    var dateFormatter = DateFormatter()
+    var yearFormatter = DateFormatter()
+    
+    var bubbleLayer: CALayer?
+    var bubbleLineLayer: CAShapeLayer?
+    var bubbleRect: CGRect?
+    
     // MARK: - View Life Cycle -
     
     override func awakeFromNib() {
         super.awakeFromNib()
         
+        dateFormatter.dateFormat = "MMM d"
+        yearFormatter.dateFormat = "yyyy"
         addPanGR()
+        addTapGR()
     }
     
     // MARK: - Public Functions -
     
     public func updateData(animated: Bool = true) {
-        if !animated {
-            layer.sublayers?.forEach { $0.removeFromSuperlayer() }
-            chartScrollContentLayer?.sublayers?.forEach { $0.removeFromSuperlayer() }
-        }
         colorMode = Colors.mode
         compute()
+        if !animated {
+            xChanged = true
+            yChanged = true
+            
+            let layerRemoval: (CALayer) -> Void = { $0.removeFromSuperlayer() }
+            layer.sublayers?.forEach(layerRemoval)
+            chartScrollContentLayer?.sublayers?.forEach(layerRemoval)
+            navigationChartLayer?.sublayers?.forEach(layerRemoval)
+        }
         render(animated: animated)
     }
     
@@ -145,7 +166,12 @@ class ChartView: UIView {
         chartHeight = frame.height - Constants.navigationViewHeight - (Constants.labelHeight * 2)
         segmentHeight = (chartHeight - Constants.labelHeight) / 5.0
         // Calculate chart properties
+        oldChartWidth = chartWidth
         chartWidth = frame.width / chart.state.diff
+        // Calculate if x went up
+        xWentUp = oldChartWidth < chartWidth
+        let xDiff = oldChartWidth - chartWidth
+        xChanged = xDiff > 0.1 || xDiff < -0.1
     }
     
     // MARK: - Rendering -
@@ -153,9 +179,117 @@ class ChartView: UIView {
     func render(animated: Bool) {
         drawGrid(animated: animated)
         drawCharts(animated: animated)
-        drawGridTitles(animated: animated)
         drawNavigationViewCharts(animated: animated)
         drawNavigationView()
+        drawGridTitles(animated: animated)
+        drawSelectionBubble(animated: animated)
+    }
+    
+    func drawSelectionBubble(animated: Bool) {
+        // Remove vertical line
+        bubbleLineLayer?.removeFromSuperlayer()
+        bubbleLineLayer = nil
+        bubbleLayer?.removeFromSuperlayer()
+        bubbleLayer = nil
+        // Draw vertical line
+        guard let selectedIndex = chart.state.selectedIndex else {
+            return
+        }
+        let x = CGFloat(selectedIndex) / CGFloat(chart.columns["x"]!.values.count) * chartWidth
+        let from = CGPoint(x: x, y: 0)
+        let to = CGPoint(x: x, y: chartHeight)
+        bubbleLineLayer = addLine(from: from,
+                           to: to,
+                           color: colorMode == .day ?
+                            UIColor(red: 225, green: 224, blue: 225) :
+                            UIColor(red: 6, green: 15, blue: 26),
+                           layer: chartScrollContentLayer)
+        // Draw selection circles
+        for columnName in chart.columnNames {
+            guard let column = chart.columns[columnName], column.selected else {
+                continue
+            }
+            let y = chartHeight - ((CGFloat(column.values[selectedIndex - 1]) / maxMinY.diff) * chartHeight)
+            let diameter: CGFloat = 6
+            let circle = CGRect(x: x, y: y, width: diameter, height: diameter)
+            navigationViewRestLayers.append(
+                add(circle: circle,
+                    fillColor: chart.colors[columnName]!,
+                    backgroundColor: colorMode == .night ?
+                        ColorConstants.darkBlue :
+                        ColorConstants.lightWhite,
+                    layer: chartScrollContentLayer))
+        }
+        // Prepare bubble titles
+        let offset: CGFloat = 4
+        let selectedX = chart.columns["x"]!.values[selectedIndex]
+        let date = dateFormatter.string(from: Date(milliseconds: selectedX))
+        let year = yearFormatter.string(from: Date(milliseconds: selectedX))
+        var chartsStrings = [(text: String, color: UIColor)]()
+        for columnName in chart.columnNames {
+            guard let column = chart.columns[columnName], column.selected else {
+                continue
+            }
+            chartsStrings.append((text: "\(column.values[selectedIndex])", color: chart.colors[columnName]!))
+        }
+        var longestCharsCount = 0
+        for string in [date, year] + chartsStrings.map { $0.text } {
+            if string.count > longestCharsCount {
+                longestCharsCount = string.count
+            }
+        }
+        // Draw bubble
+        let bubbleWidth = CGFloat(longestCharsCount * 16) + (offset * 2)
+        var labelsCount = CGFloat(chartsStrings.count)
+        if labelsCount < 2 {
+            labelsCount = 2
+        }
+        let bubbleHeight = (Constants.labelHeight * labelsCount) + (offset * 2)
+        
+        var bubbleX = x - (bubbleWidth / 2)
+        if bubbleX < 0 {
+            bubbleX = 0
+        } else if bubbleX > chartWidth - bubbleWidth {
+            bubbleX = chartWidth - bubbleWidth
+        }
+        bubbleRect = CGRect(x: bubbleX,
+                               y: CGFloat(20),
+                               width: bubbleWidth,
+                               height: bubbleHeight)
+        bubbleLayer = add(roundedRect: bubbleRect!,
+                          color: colorMode == .day ?
+                            UIColor(red: 245, green: 245, blue: 250) :
+                            UIColor(red: 25, green: 36, blue: 48),
+                          by: [.bottomLeft, .topLeft, .bottomRight, .topRight],
+                          cornerRadius: CGFloat(5),
+                          layer: chartScrollContentLayer)
+        // Draw bubble titles
+        let dateLayer = addLabel(text: date,
+                                 at: CGPoint(x: bubbleRect!.minX + offset, y: bubbleRect!.minY + offset),
+                                 color: colorMode == .night ?
+                                    UIColor(white: 1.0, alpha: 0.8) : UIColor(white: 0.0, alpha: 0.8),
+                                 layer: bubbleLayer,
+                                 width: bubbleWidth / 2)
+        dateLayer.font = Constants.boldFont
+        let _ = addLabel(text: year,
+                 at: CGPoint(x: bubbleRect!.minX + offset, y: bubbleRect!.minY + Constants.labelHeight + 4),
+                 color: colorMode == .night ?
+                    UIColor(white: 1.0, alpha: 0.8) : UIColor(white: 0.0, alpha: 0.8),
+                 layer: bubbleLayer,
+                 width: bubbleWidth / 2)
+        
+        var i = 0
+        for label in chartsStrings {
+            let labelLayer =
+                addLabel(text: label.text,
+                         at: CGPoint(x: bubbleRect!.minX + (bubbleWidth / 2) - offset, y: bubbleRect!.minY + offset + (CGFloat(i) * Constants.labelHeight)),
+                         color: label.color,
+                         layer: bubbleLayer,
+                         width: bubbleWidth / 2)
+            labelLayer.font = Constants.boldFont
+            labelLayer.alignmentMode = .right
+            i += 1
+        }
     }
     
     func drawGrid(animated: Bool) {
@@ -192,34 +326,79 @@ class ChartView: UIView {
     }
     
     func drawGridTitles(animated: Bool) {
-        // Remove horizontal grid lines titles
-        for title in horizontalGridTitlesLayers {
-            if animated && yChanged {
-                title.move(up: yWentUp,
-                           fadeIn: false,
-                           removeOnCompletion: true,
-                           movesIn: false)
-            } else {
-                title.removeFromSuperlayer()
+        if yChanged {
+            // Remove horizontal grid lines titles
+            for title in horizontalGridTitlesLayers {
+                if animated {
+                    title.move(up: yWentUp,
+                               fadeIn: false,
+                               removeOnCompletion: true,
+                               movesIn: false)
+                } else {
+                    title.removeFromSuperlayer()
+                }
+            }
+            horizontalGridTitlesLayers = []
+            // Draw horizontal grid lines titles
+            for i in 0 ..< 7 {
+                let cgI = CGFloat(i)
+                let y = chartHeight - (cgI * segmentHeight) - Constants.labelHeight
+                let result = floor(chartHeight - (y + Constants.labelHeight)) / chartHeight * localMaxMinY.diff + localMaxMinY.min
+                let flooredResult = floor(result)
+                let text = "\(Int(flooredResult))"
+                let label = addLabel(text: text, at: CGPoint(x: 0, y: y), color: colorMode == .day ?
+                    UIColor(red: 168, green: 173, blue: 180) :
+                    UIColor(red: 76, green: 91, blue: 107))
+                horizontalGridTitlesLayers.append(label)
+                if animated {
+                    label.move(up: yWentUp,
+                              fadeIn: true,
+                              removeOnCompletion: false,
+                              movesIn: true)
+                }
             }
         }
-        horizontalGridTitlesLayers = []
-        // Draw horizontal grid lines titles
-        for i in 0 ..< 7 {
-            let cgI = CGFloat(i)
-            let y = chartHeight - (cgI * segmentHeight) - Constants.labelHeight
-            let result = floor(chartHeight - (y + Constants.labelHeight)) / chartHeight * localMaxMinY.diff + localMaxMinY.min
-            let flooredResult = floor(result)
-            let text = "\(Int(flooredResult))"
-            let label = addLabel(text: text, at: CGPoint(x: 0, y: y), color: colorMode == .day ?
-                UIColor(red: 168, green: 173, blue: 180) :
-                UIColor(red: 76, green: 91, blue: 107))
-            horizontalGridTitlesLayers.append(label)
-            if animated && yChanged {
-                label.move(up: yWentUp,
-                          fadeIn: true,
-                          removeOnCompletion: false,
-                          movesIn: true)
+        if xChanged {
+            // Remove horizontal grid lines titles
+            for title in verticalGridTitlesLayers {
+                if animated {
+                    title.move(left: xWentUp,
+                               fadeIn: false,
+                               removeOnCompletion: true,
+                               movesIn: false)
+                } else {
+                    title.removeFromSuperlayer()
+                }
+            }
+            verticalGridTitlesLayers = []
+            // Draw vertical time labels
+            let labelCount = Int(floor(chartWidth / Constants.timeLabelWidth))
+            for i in 0 ... labelCount {
+                let cgI = CGFloat(i)
+                let x = Constants.timeLabelWidth * cgI
+                let label = addLabel(text: "",
+                                     at: CGPoint(x: x,
+                                                 y: chartHeight + (Constants.labelHeight / 2)),
+                                     color: colorMode == .day ?
+                                        UIColor(red: 168, green: 173, blue: 180) :
+                                        UIColor(red: 76, green: 91, blue: 107),
+                                     layer: chartScrollContentLayer,
+                                     width: Constants.timeLabelWidth)
+                // Unsafely get current x, because I'm a bit tired to
+                // come up with the unwrapping logic here
+                let progress = label.position.x / chartWidth
+                let xValues = chart.columns["x"]!.values
+                let indexOfX = Int(floor(CGFloat(xValues.count - 1) * progress))
+                let timestamp = xValues[indexOfX >= xValues.count ? xValues.count - 1 : indexOfX]
+                let date = Date(milliseconds: timestamp)
+                label.string = dateFormatter.string(from: date)
+                
+                
+                label.alignmentMode = .center
+                verticalGridTitlesLayers.append(label)
+                if animated {
+                    label.fade(fadeIn: true, removeOnCompletion: false)
+                }
             }
         }
     }
@@ -229,10 +408,11 @@ class ChartView: UIView {
         let scrollLayer = chartScrollLayer ?? CAScrollLayer()
         chartScrollLayer = scrollLayer
         let contentLayer = chartScrollContentLayer ?? CALayer()
-        if chartScrollContentLayer == nil {
-            chartScrollLayer.addSublayer(contentLayer)
-        }
+        chartScrollLayer.addSublayer(contentLayer)
         chartScrollContentLayer = contentLayer
+        
+        chartScrollLayer.masksToBounds = false
+        chartScrollContentLayer.masksToBounds = false
         
         scrollRect = CGRect(x: 0,
                             y: 0,
@@ -349,9 +529,7 @@ class ChartView: UIView {
     func drawNavigationViewCharts(animated: Bool) {
         // Create navigation view layer
         let contentLayer = navigationChartLayer ?? CALayer()
-        if navigationChartLayer == nil {
-            layer.addSublayer(contentLayer)
-        }
+        layer.addSublayer(contentLayer)
         navigationChartLayer = contentLayer
         contentLayer.frame = CGRect(x: 0,
                                     y: frame.height - Constants.navigationViewHeight,
@@ -536,6 +714,9 @@ class ChartView: UIView {
                                                   y: leftArrowRect.minY,
                                                   width: (rightArrowRect.minX - (Constants.arrowTouchExtraWidth / 2)) - (leftArrowRect.minX + leftArrowRect.width + (Constants.arrowTouchExtraWidth / 2)),
                                                   height: leftArrowRect.height)
+        let scrollTranslatedLocation =
+            CGPoint(x: (chart.state.bottom * chartWidth) + ((chart.state.diff * chartWidth) * (location.x / frame.width)),
+                    y: location.y)
         if gr.state == .began {
             if (leftArrowRect.insetBy(dx: -Constants.arrowTouchExtraWidth, dy: 0).contains(location)) {
                 pannedView = .leftArrow
@@ -543,10 +724,12 @@ class ChartView: UIView {
                 pannedView = .rightArrow
             } else if (navigationViewScrollableRect.contains(location)) {
                 pannedView = .navigationView
+            } else if (bubbleRect?.contains(scrollTranslatedLocation) ?? false) {
+                pannedView = .bubbleView
             } else if (scrollRect.contains(location)) {
                 pannedView = .chartView
             }
-            pannedState = ChartState(chart.state.bottom, chart.state.top)
+            pannedState = ChartState(chart.state.bottom, chart.state.top, chart.state.selectedIndex)
         }
         if gr.state == .began || gr.state == .changed {
             let translation = gr.translation(in: self)
@@ -586,15 +769,68 @@ class ChartView: UIView {
                 chart.state.bottom = pannedState.bottom - relativeTranslation
                 chart.state.top = pannedState.top - relativeTranslation
                 updateData()
+            } else if (pannedView == .bubbleView) {
+                guard let columnX = chart.columns["x"] else {
+                    return
+                }
+                let currentX = CGFloat(pannedState.selectedIndex!) / CGFloat(columnX.values.count) * chartWidth
+                relativeTranslation = translation.x
+                
+                let newX = currentX + relativeTranslation
+                
+                let progress = newX / chartWidth
+                let xValues = columnX.values
+                var indexOfX = Int(floor(CGFloat(xValues.count) * progress))
+                
+                if indexOfX < 0 {
+                    indexOfX = 0
+                } else if indexOfX >= columnX.values.count {
+                    indexOfX = columnX.values.count
+                }
+                chart.state.selectedIndex = indexOfX
+                updateData()
             }
         } else {
             pannedView = nil
+        }
+    }
+    
+    func addTapGR() {
+        tapGR = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
+        tapGR.delegate = self
+        addGestureRecognizer(tapGR)
+    }
+    
+    @objc func handleTap(_ gr: UITapGestureRecognizer) {
+        let location = gr.location(in: self)
+        if self.bubbleLayer != nil {
+            let untranslatedProgress = location.x / frame.width
+            let visibleWidth = chart.state.diff * chartWidth
+            let widthToTheLeft = chart.state.bottom * chartWidth
+            let scrollTranslatedLocation =
+                CGPoint(x: untranslatedProgress * visibleWidth + widthToTheLeft ,
+                        y: location.y)
+            if bubbleRect?.contains(scrollTranslatedLocation) ?? false {
+                chart.state.selectedIndex = nil
+                updateData()
+                return
+            }
+        }
+        if (scrollRect.contains(location)) {
+            let progress = (location.x / frame.width) * chart.state.diff + chart.state.bottom
+            let xValues = chart.columns["x"]!.values
+            let indexOfX = Int(floor(CGFloat(xValues.count - 1) * progress))
+            chart.state.selectedIndex = indexOfX >= xValues.count ? xValues.count - 1 : indexOfX
+            updateData()
         }
     }
 }
 
 extension ChartView: UIGestureRecognizerDelegate {
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        if type(of: otherGestureRecognizer) == UITapGestureRecognizer.self {
+            return false
+        }
         return pannedView == nil
     }
 }

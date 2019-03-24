@@ -13,6 +13,13 @@ enum ColorMode: String {
     case day
 }
 
+class ColorConstants {
+    static let darkBlue = UIColor(red: 30, green: 42, blue: 55, alpha: 1)
+    static let lightWhite = UIColor(red: 254, green: 254, blue: 254, alpha: 1)
+    static let backgroundBlack = UIColor(red: 19, green: 25, blue: 32, alpha: 1)
+    static let backgroundWhite = UIColor(red: 193, green: 192, blue: 197, alpha: 1)
+}
+
 class Colors {
     public static var mode: ColorMode {
         get {
@@ -31,10 +38,6 @@ class Colors {
         // Get mode
         let mode = self.mode
         
-        // Constants
-        let darkBlue = UIColor(red: 30, green: 42, blue: 55, alpha: 1)
-        let lightWhite = UIColor(red: 254, green: 254, blue: 254, alpha: 1)
-        
         // Apply settings
         UITableView.appearance().backgroundColor = mode == .night ?
             UIColor(red: 23, green: 31, blue: 40, alpha: 1) :
@@ -43,12 +46,12 @@ class Colors {
             UIColor(red: 21, green: 134, blue: 255, alpha: 1) :
             UIColor(red: 0, green: 115, blue: 225, alpha: 1)
         UITableViewCell.appearance().backgroundColor = mode == .night ?
-            darkBlue : lightWhite
+            ColorConstants.darkBlue : ColorConstants.lightWhite
         UITableView.appearance().separatorColor = mode == .night ?
-            UIColor(red: 19, green: 25, blue: 32, alpha: 1) :
-            UIColor(red: 193, green: 192, blue: 197, alpha: 1)
+            ColorConstants.backgroundBlack :
+            ColorConstants.backgroundWhite
         UINavigationBar.appearance().barTintColor = mode == .night ?
-            darkBlue : lightWhite
+            ColorConstants.darkBlue : ColorConstants.lightWhite
         UINavigationBar.appearance().titleTextAttributes = [
             NSAttributedString.Key.foregroundColor: mode == .night ?
                 UIColor(red: 254, green: 253, blue: 254) :
