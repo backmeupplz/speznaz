@@ -8,9 +8,10 @@
 
 import Foundation
 
-// - Selection bubble (draggable)
-// - Time labels and grid labels animation
+// - Fix selection values
 
+// + Time labels and grid labels animation
+// + Selection bubble (draggable)
 // + Time labels
 // + compute — get Y values only on the screen
 // + Chart scroll view

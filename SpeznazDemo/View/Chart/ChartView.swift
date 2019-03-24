@@ -361,14 +361,14 @@ class ChartView: UIView {
         if xChanged {
             // Remove horizontal grid lines titles
             for title in verticalGridTitlesLayers {
-                if animated {
-                    title.move(left: xWentUp,
-                               fadeIn: false,
-                               removeOnCompletion: true,
-                               movesIn: false)
-                } else {
+//                if animated {
+//                    title.move(left: xWentUp,
+//                               fadeIn: false,
+//                               removeOnCompletion: true,
+//                               movesIn: false)
+//                } else {
                     title.removeFromSuperlayer()
-                }
+//                }
             }
             verticalGridTitlesLayers = []
             // Draw vertical time labels
@@ -396,9 +396,9 @@ class ChartView: UIView {
                 
                 label.alignmentMode = .center
                 verticalGridTitlesLayers.append(label)
-                if animated {
-                    label.fade(fadeIn: true, removeOnCompletion: false)
-                }
+//                if animated {
+//                    label.fade(fadeIn: true, removeOnCompletion: false)
+//                }
             }
         }
     }
