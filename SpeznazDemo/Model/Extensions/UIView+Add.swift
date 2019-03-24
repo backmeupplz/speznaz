@@ -53,7 +53,7 @@ extension UIView {
     
     func add(circle: CGRect, fillColor: UIColor, backgroundColor: UIColor, layer: CALayer? = nil) -> CAShapeLayer {
         let circleLayer = CAShapeLayer()
-        circleLayer.path = UIBezierPath(ovalIn: circle.offsetBy(dx: circle.width / -2, dy: 0)).cgPath
+        circleLayer.path = UIBezierPath(ovalIn: circle.offsetBy(dx: circle.width / -2, dy: circle.width / -2)).cgPath
         circleLayer.fillColor = backgroundColor.cgColor
         circleLayer.strokeColor = fillColor.cgColor
         circleLayer.lineWidth = 2

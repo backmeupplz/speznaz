@@ -194,10 +194,10 @@ class ChartView: UIView {
         bubbleLayer?.removeFromSuperlayer()
         bubbleLayer = nil
         // Draw vertical line
-        guard let selectedIndex = chart.state.selectedIndex else {
+        guard let selectedIndex = chart.state.selectedIndex, let xValues = chart.columns["x"]?.values else {
             return
         }
-        let x = CGFloat(selectedIndex) / CGFloat(chart.columns["x"]!.values.count) * chartWidth
+        let x = CGFloat(selectedIndex) / CGFloat(xValues.count - 1) * chartWidth
         let from = CGPoint(x: x, y: 0)
         let to = CGPoint(x: x, y: chartHeight)
         bubbleLineLayer = addLine(from: from,
@@ -207,11 +207,17 @@ class ChartView: UIView {
                             UIColor(red: 6, green: 15, blue: 26),
                            layer: chartScrollContentLayer)
         // Draw selection circles
+        var elevatedBottomYValue = localMaxMinY.min - (localMaxMinY.diff / 10.0)
+        if (elevatedBottomYValue < 0) {
+            elevatedBottomYValue = 0.0
+        }
+
         for columnName in chart.columnNames {
             guard let column = chart.columns[columnName], column.selected else {
                 continue
             }
-            let y = chartHeight - ((CGFloat(column.values[selectedIndex - 1]) / maxMinY.diff) * chartHeight)
+            let value = CGFloat(column.values[selectedIndex])
+            let y = chartHeight - (((value - elevatedBottomYValue) / (localMaxMinY.max - elevatedBottomYValue)) * chartHeight)
             let diameter: CGFloat = 6
             let circle = CGRect(x: x, y: y, width: diameter, height: diameter)
             navigationViewRestLayers.append(
@@ -223,8 +229,7 @@ class ChartView: UIView {
                     layer: chartScrollContentLayer))
         }
         // Prepare bubble titles
-        let offset: CGFloat = 4
-        let selectedX = chart.columns["x"]!.values[selectedIndex]
+        let selectedX = xValues[selectedIndex]
         let date = dateFormatter.string(from: Date(milliseconds: selectedX))
         let year = yearFormatter.string(from: Date(milliseconds: selectedX))
         var chartsStrings = [(text: String, color: UIColor)]()
@@ -241,13 +246,14 @@ class ChartView: UIView {
             }
         }
         // Draw bubble
+        let offset: CGFloat = 4
         let bubbleWidth = CGFloat(longestCharsCount * 16) + (offset * 2)
         var labelsCount = CGFloat(chartsStrings.count)
         if labelsCount < 2 {
             labelsCount = 2
         }
         let bubbleHeight = (Constants.labelHeight * labelsCount) + (offset * 2)
-        
+
         var bubbleX = x - (bubbleWidth / 2)
         if bubbleX < 0 {
             bubbleX = 0
@@ -279,7 +285,7 @@ class ChartView: UIView {
                     UIColor(white: 1.0, alpha: 0.8) : UIColor(white: 0.0, alpha: 0.8),
                  layer: bubbleLayer,
                  width: bubbleWidth / 2)
-        
+
         var i = 0
         for label in chartsStrings {
             let labelLayer =
@@ -772,22 +778,21 @@ class ChartView: UIView {
                 chart.state.top = pannedState.top - relativeTranslation
                 updateData()
             } else if (pannedView == .bubbleView) {
-                guard let columnX = chart.columns["x"] else {
+                guard let columnX = chart.columns["x"], let selectedIndex = pannedState.selectedIndex else {
                     return
                 }
-                let currentX = CGFloat(pannedState.selectedIndex!) / CGFloat(columnX.values.count) * chartWidth
-                relativeTranslation = translation.x
+                let currentX = CGFloat(selectedIndex) / CGFloat(columnX.values.count - 1) * chartWidth
                 
-                let newX = currentX + relativeTranslation
+                let newX = currentX + translation.x
                 
                 let progress = newX / chartWidth
                 let xValues = columnX.values
-                var indexOfX = Int(floor(CGFloat(xValues.count) * progress))
+                var indexOfX = Int(floor(CGFloat(xValues.count - 1) * progress))
                 
                 if indexOfX < 0 {
                     indexOfX = 0
-                } else if indexOfX >= columnX.values.count {
-                    indexOfX = columnX.values.count
+                } else if indexOfX > columnX.values.count - 1 {
+                    indexOfX = columnX.values.count - 1
                 }
                 chart.state.selectedIndex = indexOfX
                 updateData()
@@ -840,7 +845,7 @@ class ChartView: UIView {
         
         if gr.state == .began || gr.state == .changed {
             let curDiff = pannedState.diff
-            var newDiff = curDiff * gr.scale
+            var newDiff = curDiff / gr.scale
             if newDiff < Constants.minDiffInBottomAndTop {
                 newDiff = Constants.minDiffInBottomAndTop
             }
